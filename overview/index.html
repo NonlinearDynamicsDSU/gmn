@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Overview - GMN</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
+
+  <link rel="stylesheet" href="../css/theme.css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" />
+  <link href="../extra.css" rel="stylesheet" />
+  <link href="../css/ansi-colours.css" rel="stylesheet" />
+  <link href="../css/jupyter-cells.css" rel="stylesheet" />
+  <link href="../css/pandas-dataframe.css" rel="stylesheet" />
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Overview";
+    var mkdocs_page_input_path = "overview.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> GMN</a>
+        
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                    </li>
+                </ul>
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">Overview</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#network-determination">Network Determination</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#interaction-matrix">Interaction Matrix</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Getting Started</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../installation/">Installation</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../example/">Example</a>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Documentation</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../functions/">Functions</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../parameters/">Parameters</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../edm/">EDM</a>
+                    </li>
+                </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">GMN</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Overview</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h2 id="gmn-overview">GMN Overview</h2>
+<hr />
+<p>Many state-space analytic methods presume the state-space is an invariant manifold completely encapsulating the system dynamics. Another common presumption is that a diffeomorphic representation of the true manifold can be derived from Takens embedding of a univariate time series observed from the system.  In practice, univariate observations may not sufficiently encapsulate the underlying dynamics, an issue that is compounded as the dimensionaliy and complexity of the dynamics increase. Further, it is not always clear in multidimensional complex systems whether univariate time series observations are soley generated by the presumed dynamics. For example, noise and influences from other related or coupled dynamical systems may be present.</p>
+<p>In cases where the dynamics arise from a complex interaction network, the realities of partial observation imply that univariate reconstructions from various time series of the system may not provide diffeomorphic representations of a unitary, underlying manifold, but manifolds expressing different state-space structures. To address these concerns manifold networks decompose the system into an interacting network of manifolds. </p>
+<h3 id="network-determination">Network Determination</h3>
+<p>Manifold network structure is discovered using the convergent cross mapping (CCM) causal inference algorithm to identify causal interactions, then compressed into a reduced redundancy network.</p>
+<h4 id="interaction-matrix">Interaction Matrix</h4>
+<p>The first step is create an interaction matrix (iMatrix) quantifying the interaction potential between nodes in the network. Given a data set with N feature vectors of length M where M corresponds to the number of time series observations, the iMatrix is an NxN matrix with each entry quantified by application of an interaction function F() between all combination of feature vectors. Each feature vector time series corresponds to a <code>Node</code> in the GMN <code>Network</code>. </p>
+<hr />
+<h2 id="_1"><img alt="alt text" src="../imgs/InteractionMatrix_I.png" title="Interaction Matrix" /></h2>
+<p>The application program <code>InteractionMatrix.py</code> in the <code>apps/</code> directory can create a variety of interaction matrices using different interaction functions F(). Results are stored in a Python pickled dictionary of pandas dataFrames or output as .csv files. See the docstring in <code>InteractionMatrix.py</code>. </p>
+<p>The recommended interaction potential function F() is the convergent cross mapping (CCM) minimum mutual information (MI) function referred to as CMI. This function first computes the CCM potential between all nodes (feature vectors). </p>
+<p>The CCM result is the mean prediction skill (cross correlation) of an EDM Simplex predictor over an ensemble of predictions across a spectrum of randomly selected state-space library vectors at each library size. Here a small library result with partial state-space information is compared to a large library size with more complete state-space information. If the difference in prediction skill between the large and small library sizes exceeds a user-defined threshold, CCM is considered to have converged and the positive CCM value is recorded.  Otherwise, a value of 0 is recorded. </p>
+<p>Next, for interaction matrix elements with positive CCM, the mutual information is computed between the two nodal feature vectors (time series). The value of mutual information is recorded as the interaction Matrix result. In the next step of network creation, drivers (input node time series) are ranked according to minumum mutual information. </p>
+<p>Avialable methods :</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Label</th>
+<th>CLI argument</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>All Metrics</td>
+<td></td>
+<td>-a --allMethods</td>
+</tr>
+<tr>
+<td>Cross Correlation</td>
+<td>CC</td>
+<td>-rho</td>
+</tr>
+<tr>
+<td>Simplex Cross Map</td>
+<td>CM</td>
+<td>-cmap</td>
+</tr>
+<tr>
+<td>Convergent Cross Map</td>
+<td>CCM</td>
+<td>-ccm</td>
+</tr>
+<tr>
+<td>rho Diff = max(CM, 0) - abs(CC)</td>
+<td>rhoDiff</td>
+<td>-rhoDiff</td>
+</tr>
+<tr>
+<td>Mutual Information</td>
+<td>MI</td>
+<td>-mi</td>
+</tr>
+<tr>
+<td>Mutual Information Non Linearity</td>
+<td>MI_NL</td>
+<td>-nl</td>
+</tr>
+<tr>
+<td>SMap nonlinearity</td>
+<td>SMap</td>
+<td>-smap</td>
+</tr>
+<tr>
+<td>CCM : Mutual Information</td>
+<td>CMI</td>
+<td>-cmi</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="network-creation">Network Creation</h4>
+<p>Once an interaction matrix is defined the application program <code>CreateNetwork.py</code> in the <code>apps/</code> directory can build the GMN network.  The network is created as a <a href="https://networkx.org/"><code>networkx</code></a> acyclic directed graph (DiGraph) and stored in a Python dictionary with keys <code>Graph</code> : the networkx DiGraph, and <code>Map</code> : a Python dictionary of node names. The output is stored as either a Python pickled object or json file.</p>
+<p>Nodes are added recursively starting at the output node(s), adding links according to the network interaction matrix until the limit of node drivers is reached, and, disallowing the creation of network cycles.  The number of drivers is a network property specified as a command line argument (<code>-d</code>, <code>--numDrivers</code>) to <code>CreateNetwork.py</code>.</p>
+<p><img alt="alt text" src="../imgs/CreateNetwork_II.png" title="Create Network" /></p>
+<h4 id="generative-mode">Generative Mode</h4>
+<p>Once a network is created GMN can be run to generate time series at the output nodes. First a <code>GMN</code> class object is created from the <code>gmn</code> package and initialized according to the configuration file.</p>
+<pre><code class="language-python">import gmn
+G = gmn.GMN( configFile = 'config/default.cfg' )
+</code></pre>
+<p>The network can then be run in generative mode:</p>
+<pre><code class="language-python">G.Generate()
+</code></pre>
+<p><img alt="alt text" src="../imgs/GenerativeMode_III.png" title="Generative Mode" /></p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../installation/" class="btn btn-neutral float-right" title="Installation">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href=".." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../installation/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
