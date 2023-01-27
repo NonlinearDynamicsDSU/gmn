@@ -1,0 +1,21 @@
+site_name: GMN
+theme: 
+    name: readthedocs
+extra_css: [extra.css]
+
+plugins:
+- mknotebooks
+
+markdown_extensions:
+  - attr_list
+
+nav:
+- Home : index.md
+- Overview : overview.md
+- Getting Started :
+    - Installation : installation.md
+    - Example : example.md
+- Documentation :
+    - Functions : functions.md
+    - Parameters : parameters.md
+- EDM : edm.md

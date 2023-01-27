@@ -1,0 +1,11 @@
+h1, h2, h3 {
+    font-family: arial;
+}
+.wy-side-nav-search, .wy-nav-top {
+    background: #800000;
+}
+function {
+    font-family: arial;
+    font-size: 40px;
+    color: gray;
+}

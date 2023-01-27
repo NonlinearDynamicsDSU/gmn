@@ -1,0 +1,27 @@
+[build-system]
+requires = ["pdm-pep517", "networkx>=2.7", "pandas>=1.5",
+            "pyEDM>=1.13", "numpy", "matplotlib", "scikit-learn" ]
+build-backend = "pdm.pep517.api"
+
+[project]
+name    = "gmn"
+version = "1.0.0"
+authors = [
+  { name = "Joseph Park", email = "JosephPark@IEEE.org" },
+  { name = "Gerald Pao",  email = "GERALD.PAO@OIST.JP" },
+]
+description = "Generative Manifold Networks"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: Copyright License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/NonlinearDynamicsDSU/gmn"
+"Issues"   = "https://github.com/NonlinearDynamicsDSU/gmn/issues"
+
+#[tool.setuptools]
+#py-modules = ['gmn']
