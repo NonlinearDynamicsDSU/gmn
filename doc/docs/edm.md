@@ -49,8 +49,14 @@ The effect of this knn localisation can be assessed with the EDM
 [`PredictNonlinear()`](https://sugiharalab.github.io/EDM_Documentation/edm_functions/#predictnonlinear) function that
 evaluates S-map predictive skill over a range of localisations θ. 
 
-### Embedding Visualization
-<iframe width="100%" height="335"
+### Takens Embedding Visualization
+<iframe width="100%" height="350"
 src="https://www.youtube.com/embed/QQwtrWBwxQg" 
 frameborder="0" allow="autoplay; gyroscope; 
+picture-in-picture" allowfullscreen></iframe>
+
+### Convergent Cross Mapping (CCM)
+<iframe width="100%" height="350"
+src="https://www.youtube.com/embed/NrFdIz-D2yM"
+frameborder="0" allow="autoplay; gyroscope;
 picture-in-picture" allowfullscreen></iframe>
