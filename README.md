@@ -1,8 +1,8 @@
 ## Generative Manifold Networks (GMN)
 ---
-Generative Manifold Networks is a generalization of nonlinear dynamical systems from a single state-space with a manifold operator, to an interconnected network of operators on the state-space(s).
+Generative Manifold Networks is a generalization of nonlinear dynamical systems from a single state-space with a manifold operator, to an interconnected network of operators on the state-space(s) introduced by [Pao et al.](https://arxiv.org/abs/2106.10627).
 
-[Biological Nonlinear Dynamics Data Science Unit, OIST](https://www.oist.jp/research/research-units/bndd))
+[Biological Nonlinear Dynamics Data Science Unit, OIST](https://www.oist.jp/research/research-units/bndd)
 
 ---
 ## Installation
@@ -10,12 +10,15 @@ Generative Manifold Networks is a generalization of nonlinear dynamical systems 
 ### Python Package Index (PyPI)
 PyPI [gmn](https://pypi.org/project/gmn/). 
 
-Command line using the Python pip module: `python -m pip install gmn`
+Command line using the Python pip module: `pip install gmn`
 
+---
+## Documentation
+[GMN documentation](https://nonlineardynamicsdsu.github.io/gmn/).
 
 ---
 ## Usage
-Example usage at the python prompt from directory `gmn`:
+Example usage at the python prompt in directory `gmn`:
 ```python
 >>> import gmn
 >>> G = gmn.GMN( configFile = './config/default.cfg' )
