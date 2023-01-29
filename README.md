@@ -7,10 +7,9 @@ GMN is developed at the [Biological Nonlinear Dynamics Data Science Unit, OIST](
 ---
 ## Installation
 
-### Python Package Index (PyPI)
-PyPI [gmn](https://pypi.org/project/gmn/). 
+### Python Package Index (PyPI) [gmn](https://pypi.org/project/gmn/). 
 
-Command line using the Python pip module: `pip install gmn`
+`pip install gmn`
 
 ---
 ## Documentation
