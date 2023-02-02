@@ -4,6 +4,8 @@ The `GMN.Parameters` object is a mapping of configuration file parameters. A sin
 
 If a `Network` `Node` is named `node_1` and if a file named `node_1.cfg` is found in the `Network.path`, then `node_1` will load the `node_1.cfg` file defining the `Node` parameters. 
 
+ `[EDM]` parameters are defined in [EDM Parameters](https://sugiharalab.github.io/EDM_Documentation/parameters/).
+
 ### Configuration File
 
 ```python
