@@ -2,13 +2,26 @@
 
 ### <function> GMN </function> 
 ** Description **  :   
-Class object GMN.
-Constructor:
+Class object for Generative Manifold Networks (GMN).
+
+** Constructor Signature **
+```python
+    def __init__( self, args  = None,  parameters = None,
+                  configFile  = None,  configDir  = None,
+                  outputFile  = None,  cores      = 4, 
+                  plot        = False, statePlot  = False, 
+                  plotColumns = [],    plotFile   = None,
+                  debug       = False )
+```
+
+Full configuration is performed by instantiating GMN with `args` from gmn.CLI_Parser.ParseCmdLine() and `parameters` from gmn.ConfigParser.ReadConfig().
+
+If `args` is `None` `GMN.__init__` function arguments are used to populate args. If `parameters` is `None` the parameters object is created from the `args`.
 
 | Parameter | Type | Default | Purpose |
 | --------- | ---- | ------- | ------- |
-| args        | argparse ArgumentParser |
-| parameters  | gmn Parameter object    |
+| args        | argparse ArgumentParser | None | command line arguments
+| parameters  | gmn Parameter object    | None | GMN parameters
 | configFile  | string | None | Configuration file for Network / Nodes |
 | configDir   | string | None | Path to directory of configuration file(s) |
 | outputFile  | string | None | CSV output file |
@@ -46,3 +59,17 @@ if args.Plot or args.StatePlot or parameters.showPlot or parameters.plotFile: ca
 ```python
 G.Generate()
 ```
+---
+
+### <function> GMN.Plot </function> 
+** Description **  :   
+Plot generated time series (args.plot = True, or Parameters.plotType is 'time') or time series and 2-D state-space plots (args.statePlot = True, or Parameters.plotType is 'state').
+
+** Returns **  :   
+pyplot image 
+
+---
+
+### GMN.DataOut
+** Description **  :   
+pandas DataFrame of generated data.
