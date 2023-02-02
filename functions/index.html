@@ -70,6 +70,10 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#gmngenerate"> GMN.Generate </a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#gmnplot"> GMN.Plot </a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#gmndataout">GMN.DataOut</a>
+    </li>
     </ul>
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="../parameters/">Parameters</a>
@@ -118,8 +122,17 @@
                 <h2 id="api-reference">API Reference</h2>
 <h3 id="gmn"><function> GMN </function></h3>
 <p><strong> Description </strong>  : <br />
-Class object GMN.
-Constructor:</p>
+Class object for Generative Manifold Networks (GMN).</p>
+<p><strong> Constructor Signature </strong></p>
+<pre><code class="language-python">    def __init__( self, args  = None,  parameters = None,
+                  configFile  = None,  configDir  = None,
+                  outputFile  = None,  cores      = 4, 
+                  plot        = False, statePlot  = False, 
+                  plotColumns = [],    plotFile   = None,
+                  debug       = False )
+</code></pre>
+<p>Full configuration is performed by instantiating GMN with <code>args</code> from gmn.CLI_Parser.ParseCmdLine() and <code>parameters</code> from gmn.ConfigParser.ReadConfig().</p>
+<p>If <code>args</code> is <code>None</code> <code>GMN.__init__</code> function arguments are used to populate args. If <code>parameters</code> is <code>None</code> the parameters object is created from the <code>args</code>.</p>
 <table>
 <thead>
 <tr>
@@ -133,14 +146,14 @@ Constructor:</p>
 <tr>
 <td>args</td>
 <td>argparse ArgumentParser</td>
-<td></td>
-<td></td>
+<td>None</td>
+<td>command line arguments</td>
 </tr>
 <tr>
 <td>parameters</td>
 <td>gmn Parameter object</td>
-<td></td>
-<td></td>
+<td>None</td>
+<td>GMN parameters</td>
 </tr>
 <tr>
 <td>configFile</td>
@@ -216,6 +229,16 @@ If <code>args.outputFile</code>, or <code>parameters.dataOutCSV</code>: write <c
 <p><strong> Example </strong> :   </p>
 <pre><code class="language-python">G.Generate()
 </code></pre>
+<hr />
+<h3 id="gmnplot"><function> GMN.Plot </function></h3>
+<p><strong> Description </strong>  : <br />
+Plot generated time series (args.plot = True, or Parameters.plotType is 'time') or time series and 2-D state-space plots (args.statePlot = True, or Parameters.plotType is 'state').</p>
+<p><strong> Returns </strong>  : <br />
+pyplot image </p>
+<hr />
+<h3 id="gmndataout">GMN.DataOut</h3>
+<p><strong> Description </strong>  : <br />
+pandas DataFrame of generated data.</p>
               
             </div>
           </div>
