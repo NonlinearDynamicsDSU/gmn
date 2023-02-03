@@ -15,7 +15,7 @@ readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: Copyright License",
+    "License :: Free For Educational Use",
     "Operating System :: OS Independent",
 ]
 
