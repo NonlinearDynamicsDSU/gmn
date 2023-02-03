@@ -72,8 +72,6 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#gmnplot"> GMN.Plot </a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#gmndataout">GMN.DataOut</a>
-    </li>
     </ul>
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="../parameters/">Parameters</a>
@@ -119,20 +117,22 @@
           <div role="main">
             <div class="section">
               
-                <h2 id="api-reference">API Reference</h2>
+                <h2 id="gmn-methods">GMN Methods</h2>
 <h3 id="gmn"><function> GMN </function></h3>
 <p><strong> Description </strong>  : <br />
 Class object for Generative Manifold Networks (GMN).</p>
 <p><strong> Constructor Signature </strong></p>
-<pre><code class="language-python">    def __init__( self, args  = None,  parameters = None,
+<pre><code class="language-python">class GMN:
+    def __init__( self, args  = None,  parameters = None,
                   configFile  = None,  configDir  = None,
                   outputFile  = None,  cores      = 4, 
                   plot        = False, statePlot  = False, 
                   plotColumns = [],    plotFile   = None,
                   debug       = False )
 </code></pre>
-<p>Full configuration is performed by instantiating GMN with <code>args</code> from gmn.CLI_Parser.ParseCmdLine() and <code>parameters</code> from gmn.ConfigParser.ReadConfig().</p>
-<p>If <code>args</code> is <code>None</code> <code>GMN.__init__</code> function arguments are used to populate args. If <code>parameters</code> is <code>None</code> the parameters object is created from the <code>args</code>.</p>
+<p>Full configuration is performed by instantiating GMN with <code>args</code> from <a href="https://github.com/NonlinearDynamicsDSU/gmn/blob/master/gmn/CLI_Parser.py">gmn.CLI_Parser.ParseCmdLine()</a> and <code>parameters</code> from <a href="https://github.com/NonlinearDynamicsDSU/gmn/blob/master/gmn/ConfigParser.py">gmn.ConfigParser.ReadConfig()</a>. This is normally done in an application such as the command-line-interface (CLI) program <a href="https://github.com/NonlinearDynamicsDSU/gmn/blob/master/apps/Run.py">Run.py</a>.</p>
+<p>If <code>args</code> is <code>None</code> <code>GMN.__init__</code> function arguments are used to populate args. </p>
+<p>If <code>parameters</code> is <code>None</code> the parameters object is created from <code>args</code>.</p>
 <table>
 <thead>
 <tr>
@@ -214,7 +214,8 @@ Class object for Generative Manifold Networks (GMN).</p>
 <p><strong> Returns </strong>  : <br />
 <code>GMN</code> class object.  The object is initialized to create the <code>GMN.Network</code> class object, all <code>Node</code> class objects of the network including input data, and the <code>GMN.DataOut</code> pandas DataFrame. </p>
 <p><strong> Example </strong> :   </p>
-<pre><code class="language-python">import gmn
+<pre><code class="language-python"># Initalize GMN object with default.cfg
+import gmn
 G = gmn.GMN( configFile = 'config/default.cfg' )
 </code></pre>
 <hr />
@@ -236,6 +237,7 @@ Plot generated time series (args.plot = True, or Parameters.plotType is 'time') 
 <p><strong> Returns </strong>  : <br />
 pyplot image </p>
 <hr />
+<h2 id="gmn-attributes">GMN Attributes</h2>
 <h3 id="gmndataout">GMN.DataOut</h3>
 <p><strong> Description </strong>  : <br />
 pandas DataFrame of generated data.</p>
