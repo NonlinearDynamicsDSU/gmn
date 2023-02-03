@@ -19,7 +19,7 @@ class test_GMN( unittest.TestCase ):
     @classmethod
     def setUpClass( self ):
         self.GetDataFiles( self )
-    
+
     #------------------------------------------------------------
     # 
     #------------------------------------------------------------
