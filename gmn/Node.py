@@ -156,7 +156,7 @@ class Node:
         '''Called from GMN Generate() in the Network Node loop'''
 
         if self.args.DEBUG_ALL :
-            print( '-----> Node:Generate() : ', self.FunctionType.name, self.name )
+            print( '-----> Node:Generate() : ',self.FunctionType.name, self.name)
             print( self.data.tail( 2 ) );
             print( 'lastDataOut:' ); print( lastDataOut )
 
@@ -168,7 +168,7 @@ class Node:
         # Local References for convenience and readability
         Parameters = self.Parameters
         data       = self.data
-        
+
         if self.args.DEBUG_ALL :
             print( '  Appended data : shape: ', data.shape ); 
             print( data.tail( 3 ) ); print()
@@ -316,7 +316,7 @@ class Node:
 
         if self.args.DEBUG_ALL :
             print( self.name, "val:", val )
-            print( '<----- Node:Generate() : ', self.FunctionType.name, self.name )
+            print( '<----- Node:Generate() : ',self.FunctionType.name,self.name )
             print()
 
         return val
