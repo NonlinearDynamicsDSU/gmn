@@ -1,4 +1,4 @@
-## API Reference
+## GMN Methods
 
 ### <function> GMN </function> 
 ** Description **  :   
@@ -6,6 +6,7 @@ Class object for Generative Manifold Networks (GMN).
 
 ** Constructor Signature **
 ```python
+class GMN:
     def __init__( self, args  = None,  parameters = None,
                   configFile  = None,  configDir  = None,
                   outputFile  = None,  cores      = 4, 
@@ -14,9 +15,11 @@ Class object for Generative Manifold Networks (GMN).
                   debug       = False )
 ```
 
-Full configuration is performed by instantiating GMN with `args` from gmn.CLI_Parser.ParseCmdLine() and `parameters` from gmn.ConfigParser.ReadConfig().
+Full configuration is performed by instantiating GMN with `args` from [gmn.CLI_Parser.ParseCmdLine()](https://github.com/NonlinearDynamicsDSU/gmn/blob/master/gmn/CLI_Parser.py) and `parameters` from [gmn.ConfigParser.ReadConfig()](https://github.com/NonlinearDynamicsDSU/gmn/blob/master/gmn/ConfigParser.py). This is normally done in an application such as the command-line-interface (CLI) program [Run.py](https://github.com/NonlinearDynamicsDSU/gmn/blob/master/apps/Run.py).
 
-If `args` is `None` `GMN.__init__` function arguments are used to populate args. If `parameters` is `None` the parameters object is created from the `args`.
+If `args` is `None` `GMN.__init__` function arguments are used to populate args. 
+
+If `parameters` is `None` the parameters object is created from `args`.
 
 | Parameter | Type | Default | Purpose |
 | --------- | ---- | ------- | ------- |
@@ -37,6 +40,7 @@ If `args` is `None` `GMN.__init__` function arguments are used to populate args.
 
 ** Example ** :   
 ```python
+# Initalize GMN object with default.cfg
 import gmn
 G = gmn.GMN( configFile = 'config/default.cfg' )
 ```
@@ -69,6 +73,8 @@ Plot generated time series (args.plot = True, or Parameters.plotType is 'time') 
 pyplot image 
 
 ---
+
+## GMN Attributes
 
 ### GMN.DataOut
 ** Description **  :   
