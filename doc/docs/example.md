@@ -38,25 +38,26 @@ Define the configuration file `./network/ABCD_Network_E5_tau-3_CCM.cfg` as :
 
 ```python
 [GMN]
+mode             = Generate
 predictionLength = 300
 predictionStart  = 700
 outPath          = ./output
 dataOutCSV       =
 showPlot         = True
-plotFile         =
 plotType         = state
 plotColumns      = Out A B C D
+plotFile         =
 
 [Network]
 name       = ABCD 4 Driver
 targetNode = Out
-path       = ./output/
-file       = ABCD_Network_E5_tau-3_CCM.pkl
+file       = ./output/ABCD_Network_E5_tau-3_CCM.pkl
 data       = ./data/TestData_ABCD.csv
 
 [Node]
 info       = 
 data       = 
+configPath = 
 function   = Simplex
 
 [EDM]

@@ -1,8 +1,4 @@
 
-# Python distribution modules
-# Community modules
-# Local modules 
-
 #---------------------------------------------------------------
 #---------------------------------------------------------------
 class Parameters:
@@ -19,51 +15,52 @@ class Parameters:
         '''Constructor'''
 
         # GMN
-        self.predictionLength = None
+        self.mode             = None
         self.predictionStart  = None
+        self.predictionLength = None
         self.outPath          = None
         self.dataOutCSV       = None
         self.showPlot         = None
-        self.plotFile         = None
         self.plotType         = None
         self.plotColumns      = None
+        self.plotFile         = None
 
         # Network
-        self.networkName = None
-        self.networkPath = None
-        self.networkFile = None
-        self.networkData = None
-        self.targetNode  = None
+        self.networkName      = None
+        self.targetNode       = None
+        self.networkFile      = None
+        self.networkData      = None
 
         # Node
-        self.nodeInfo    = None
-        self.nodeData    = None
-        self.function    = None
+        self.nodeInfo         = None
+        self.function         = None
+        self.nodeData         = None
+        self.nodeConfigPath   = None
 
         # EDM
-        self.lib             = None
-        self.pred            = None
-        self.E               = None
-        self.Tp              = None
-        self.knn             = None
-        self.tau             = None
-        self.theta           = None
-        self.exclusionRadius = None
-        self.columns         = None
-        self.target          = None
-        self.solver          = None
-        self.embedded        = None
-        self.validLib        = None
-        self.generateSteps   = None
-        self.libSizes        = None
-        self.sample          = None
-        self.random          = None
-        self.includeData     = None
-        self.seed            = None
+        self.lib              = None
+        self.pred             = None
+        self.E                = None
+        self.Tp               = None
+        self.knn              = None
+        self.tau              = None
+        self.theta            = None
+        self.exclusionRadius  = None
+        self.columns          = None
+        self.target           = None
+        self.solver           = None
+        self.embedded         = None
+        self.validLib         = None
+        self.generateSteps    = None
+        self.libSizes         = None
+        self.sample           = None
+        self.random           = None
+        self.includeData      = None
+        self.seed             = None
 
         # Scale
-        self.factor          = None
-        self.offset          = None
+        self.factor           = None
+        self.offset           = None
 
     #-----------------------------------------------------------
     #-----------------------------------------------------------
@@ -71,19 +68,19 @@ class Parameters:
         print( 'Parameters: ----------------------------------' )
 
         # GMN
-        print( '\t', 'predictionLength', self.predictionLength )
+        print( '\t', 'mode',             self.mode )
         print( '\t', 'predictionStart',  self.predictionStart  )
+        print( '\t', 'predictionLength', self.predictionLength )
         print( '\t', 'outPath',          self.outPath     )
         print( '\t', 'dataOutCSV',       self.dataOutCSV  )
         print( '\t', 'showPlot',         self.showPlot    )
-        print( '\t', 'plotFile',         self.plotFile    )
         print( '\t', 'plotType',         self.plotType    )
         print( '\t', 'plotColumns',      self.plotColumns )
+        print( '\t', 'plotFile',         self.plotFile    )
 
         # Network
         print( '\t', 'networkName', self.networkName )
         print( '\t', 'targetNode',  self.targetNode  )
-        print( '\t', 'networkPath', self.networkPath )
         print( '\t', 'networkFile', self.networkFile )
         print( '\t', 'networkData', self.networkData )
 

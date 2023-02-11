@@ -24,20 +24,23 @@ class test_GMN( unittest.TestCase ):
     # 
     #------------------------------------------------------------
     def GetDataFiles( self ):
+        '''Load output data files'''
+
         self.Files = {}
 
-        dataFiles = [ "DataOut_ABCD_CMI_E7_tau-3.csv" ]
+        dataFiles = [ "DataOut_ABCD_CMI_E7_tau-3.csv",
+                      "DataOut_ABCD_A1_CMI_E7_tau-3.csv" ]
 
         # self.Files map of DataFrames from dataFiles
         for fileName in dataFiles:
             self.Files[ fileName ] = read_csv( fileName )
 
     #------------------------------------------------------------
-    # GMN Generate Read configFile
+    # GMN Generate : Read configFile
     #------------------------------------------------------------
     def test_read_config( self ):
+        '''Read config file using ParseCmdLine(), ReadConfig( args )'''
 
-        # print ( "--- GMN Run Read Config ---", flush = True )
         args = gmn.CLI_Parser.ParseCmdLine()
         args.configFile = 'gmn_test1.cfg'
         parameters = gmn.ConfigParser.ReadConfig( args )
@@ -52,11 +55,10 @@ class test_GMN( unittest.TestCase ):
         self.assertTrue( df.equals( GMN.DataOut.round(4) ) )
 
     #------------------------------------------------------------
-    # GMN Generate argument configFile
+    # GMN Generate : argument configFile
     #------------------------------------------------------------
     def test_constructor_config( self ):
-
-        # print ( "--- GMN Run constructor configFile ---", flush = True )
+        '''Read config file using GMN constructor argument'''
 
         # Instantiate and initialize GMN
         GMN = gmn.GMN( configFile = 'gmn_test1.cfg' )
@@ -64,6 +66,23 @@ class test_GMN( unittest.TestCase ):
         GMN.Generate() # Run GMN forward in time
 
         df = self.Files[ "DataOut_ABCD_CMI_E7_tau-3.csv" ]
+ 
+        self.assertTrue( df.equals( GMN.DataOut.round(4) ) )
+
+    #------------------------------------------------------------
+    # GMN Generate : Read node A config and data
+    #------------------------------------------------------------
+    def test_nodeA_config( self ):
+        '''Read config file/data for node A
+           Note: A.cfg is read for node A since A.cfg exists in configDir'''
+
+        # Instantiate and initialize GMN
+        # gmn_test_readNode.cfg : Node.configPath = ../tests/
+        GMN = gmn.GMN( configFile = 'gmn_test_readNode.cfg' )
+
+        GMN.Generate() # Run GMN forward in time
+
+        df = self.Files[ "DataOut_ABCD_A1_CMI_E7_tau-3.csv" ]
  
         self.assertTrue( df.equals( GMN.DataOut.round(4) ) )
 

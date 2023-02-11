@@ -25,24 +25,25 @@ def ReadConfig( args, configurationFile = None ):
     # Map config file values into param
     param = Parameters()
 
-    param.predictionLength = config.getint( 'GMN', 'predictionLength' )
+    param.mode             = config[ 'GMN' ][ 'mode' ]
     param.predictionStart  = config.getint( 'GMN', 'predictionStart'  )
+    param.predictionLength = config.getint( 'GMN', 'predictionLength' )
     param.outPath          = config[ 'GMN' ][ 'outPath'     ]
     param.dataOutCSV       = config[ 'GMN' ][ 'dataOutCSV'  ]
     param.showPlot         = config.getboolean( 'GMN', 'showPlot' )
-    param.plotFile         = config[ 'GMN' ][ 'plotFile'    ]
     param.plotType         = config[ 'GMN' ][ 'plotType'    ]
     param.plotColumns      = config[ 'GMN' ][ 'plotColumns' ]
+    param.plotFile         = config[ 'GMN' ][ 'plotFile'    ]
 
     param.networkName      = config[ 'Network' ][ 'name' ]
     param.targetNode       = config[ 'Network' ][ 'targetNode' ]
-    param.networkPath      = config[ 'Network' ][ 'path' ]
     param.networkFile      = config[ 'Network' ][ 'file' ]
     param.networkData      = config[ 'Network' ][ 'data' ]
 
     param.nodeInfo         = config[ 'Node' ][ 'info' ]
-    param.data             = config[ 'Node' ][ 'data' ]
     param.function         = config[ 'Node' ][ 'function' ]
+    param.nodeData         = config[ 'Node' ][ 'data' ]
+    param.nodeConfigPath   = config[ 'Node' ][ 'configPath' ]
 
     param.lib              = config [ 'EDM' ][ 'lib'  ]
     param.pred             = config [ 'EDM' ][ 'pred' ]

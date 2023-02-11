@@ -19,9 +19,9 @@ class Network:
 
     Loads Network data if Parameters.networkData specified. This is default
     data for Nodes. Node will override data if a node configuration file
-    is specified (a file in network path named NodeName.cfg) and the node
-    configuration file specifies a Parameters.data filename.
-    
+    is specified (a file in Node.configPath named NodeName.cfg) and the node
+    configuration file specifies a Node.data filename.
+
     Creates Node objects corresponding to GMN.Network.nodes (networkx DiGraph 
     nodes). The Node class objects are stored as "attributes"
     ( dict { 'Node' : Node Object } ) in the corresponding self.Graph.nodes. 
@@ -38,7 +38,7 @@ class Network:
         self.timeColumnName    = None
 
         # Read network graph : See CreateNetwork.py
-        graphFile = parameters.networkPath + parameters.networkFile
+        graphFile = parameters.networkFile
         with open( graphFile, 'rb' ) as f :
             NetworkGraphDict = pickle.load( f )
             self.Graph       = NetworkGraphDict[ 'Graph' ]
@@ -76,10 +76,14 @@ class Network:
                          str( self.data.shape[0] ) +\
                          " is less than predictionStart " +\
                          str( parameters.predictionStart )
-                raise Exception( errMsg )
+                raise RuntimeError( errMsg )
 
-            # Indices for "data library" from index 1 to predictionStart
-            self.dataLib_i = range( parameters.predictionStart )
+            if "generate" in parameters.mode.lower() :
+                # Indices for "data library" from index 1 to predictionStart
+                self.dataLib_i = range( parameters.predictionStart )
+            else :
+                # Forecast mode : all data
+                self.dataLib_i = range( self.data.shape[0] )
 
             if args.DEBUG or args.DEBUG_ALL :
                 print( "Network.__init__() Loaded",
@@ -93,7 +97,7 @@ class Network:
         for nodeName in self.Graph :
             # Node constructor can override Network data
             newNode = Node( args, self, nodeName )
- 
+
             # Assign newNode object as attribute to this Graph node
             self.Graph.nodes[ nodeName ][ 'Node' ] = newNode
 

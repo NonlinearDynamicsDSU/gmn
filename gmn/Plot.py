@@ -22,21 +22,11 @@ def Plot( self ):
     data       = self.Network.data
     gmnData    = self.DataOut
 
-    plotTitle = parameters.function              +\
+    plotTitle = parameters.function + "  "       +\
+                parameters.mode                  +\
                 "  E="   + str( parameters.E   ) +\
                 "  tau=" + str( parameters.tau ) +\
                 "  Tp="  + str( parameters.Tp  ) 
-
-    timeData = data.iloc   [:, 0] # First column
-    timeGMN  = gmnData.iloc[:, 0] # First column
-    timeLib  = timeData [ range( parameters.predictionStart ) ]
-    dataLib  = data.iloc[ range( parameters.predictionStart ), : ]
-
-    # range for observed data over library [ 0:predictionStart ]
-    dataPred_i = range( parameters.predictionStart - 1, data.shape[0] )
-    # range for GMN predicted in the observed data
-    pred_i = range( parameters.predictionStart,
-                    parameters.predictionStart + parameters.predictionLength )
 
     if len( args.plotColumns ):
         plotColumns = args.plotColumns # CLI arguments override parameters
@@ -63,6 +53,28 @@ def Plot( self ):
             plotColumns.remove( invalidColumn )
 
         print( "GMN.Plot(): new plotColumns:", plotColumns )
+
+    # First column [:, 0] is PRESUMED to be time vector
+    timeData = data.iloc   [:, 0]
+    timeGMN  = gmnData.iloc[:, 0].to_numpy( dtype = float ) # pyplot
+
+    if "generate" in parameters.mode.lower() :
+        timeLib = timeData [ range( parameters.predictionStart ) ]
+        dataLib = data.iloc[ range( parameters.predictionStart ), : ]
+
+        # range for observed data over library [ 0 : predictionStart ]
+        dataPred_i = range( parameters.predictionStart - 1, data.shape[0] )
+        # range for GMN predicted in the observed data
+        pred_i = range(parameters.predictionStart,
+                       parameters.predictionStart + parameters.predictionLength)
+    else :
+        # Forecast mode
+        library_i  = range( 0, data.shape[0] - gmnData.shape[0] + 1 )
+        timeLib    = timeData [ library_i ]
+        dataLib    = data.iloc[ library_i, : ]
+
+        dataPred_i = range( data.shape[0] - gmnData.shape[0] - 1, data.shape[0] )
+        pred_i     = range( data.shape[0] - gmnData.shape[0], data.shape[0] )
 
     #----------------------------------------------------------------------
     # Time series plots

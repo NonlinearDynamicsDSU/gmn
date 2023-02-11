@@ -5,23 +5,24 @@ build-backend = "pdm.pep517.api"
 
 [project]
 name    = "gmn"
-version = "1.0.0"
+version = "1.1.0"
 authors = [
   { name = "Joseph Park", email = "JosephPark@IEEE.org" },
-  { name = "Gerald Pao",  email = "GERALD.PAO@OIST.JP" },
+  { name = "Gerald Pao",  email = "GERALD.PAO@OIST.JP"  },
 ]
 description = "Generative Manifold Networks"
-readme = "README.md"
+readme      = "README.md"
 requires-python = ">=3.8"
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: Free For Educational Use",
-    "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "License :: Free For Educational Use",
+  "Operating System :: OS Independent",
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/NonlinearDynamicsDSU/gmn"
-"Issues"   = "https://github.com/NonlinearDynamicsDSU/gmn/issues"
+"Homepage"      = "https://github.com/NonlinearDynamicsDSU/gmn"
+"Documentation" = "https://nonlineardynamicsdsu.github.io/gmn/"
+"Issues"        = "https://github.com/NonlinearDynamicsDSU/gmn/issues"
 
 #[tool.setuptools]
 #py-modules = ['gmn']

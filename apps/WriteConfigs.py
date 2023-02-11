@@ -22,13 +22,12 @@ def main():
     config = DefaultConfig()
 
     # Replace default config with parameters
-    config['GMN']['predictionLength'] = args.predLength
     config['GMN']['predictionStart']  = args.predStart
+    config['GMN']['predictionLength'] = args.predLength
     config['GMN']['outPath']          = args.outPath
     config['GMN']['plotColumns']      = args.plotColumns
 
     config['Network']['targetNode'] = args.targetNode
-    config['Network']['path']       = args.networkPath
     config['Network']['file']       = args.networkFile
     config['Network']['data']       = args.networkData
 
@@ -94,26 +93,28 @@ def DefaultConfig():
     config.optionxform = lambda option: option # preserve case
 
     config['GMN'] = {}
-    config['GMN']['predictionLength'] = '300'
+    config['GMN']['mode']             = 'Generate'
     config['GMN']['predictionStart']  = '700'
+    config['GMN']['predictionLength'] = '300'
     config['GMN']['outPath']          = '.'
     config['GMN']['dataOutCSV']       = 'ABCD_E3_tau-1_Tp1.csv'
     config['GMN']['showPlot']         = 'False'
-    config['GMN']['plotFile']         = 'ABCD_E3_tau-1_Tp1.png'
     config['GMN']['plotType']         = 'state'
     config['GMN']['plotColumns']      = 'Out A B C D'
+    config['GMN']['plotFile']         = 'ABCD_E3_tau-1_Tp1.png'
 
     config['Network'] = {}
     config['Network']['name']       = ''
     config['Network']['targetNode'] = 'Out'
-    config['Network']['path']       = '../network/ABCD_Test/'
-    config['Network']['file']       = 'ABCD_Network_E3_T0_tau-1_rhoDiff.pkl'
+    config['Network']['file']       =\
+        '../network/ABCD_Test/ABCD_Network_E3_T0_tau-1_CMI.pkl'
     config['Network']['data']       = '../data/TestData_ABCD.csv'
 
     config['Node'] = {}
-    config['Node']['info']     = 'Node description'
-    config['Node']['data']     = ''
-    config['Node']['function'] = 'Simplex'
+    config['Node']['info']       = 'Node description'
+    config['Node']['function']   = 'Simplex'
+    config['Node']['data']       = ''
+    config['Node']['configPath'] = ''
 
     config['EDM'] = {}
     config['EDM']['lib']             = ''
@@ -147,12 +148,6 @@ def DefaultConfig():
 def ParseCmdLine():
 
     parser = ArgumentParser( description = 'Write config' )
-
-    parser.add_argument('-c', '--configFile',
-                        dest    = 'configFile', type = str, 
-                        action  = 'store',
-                        default = 'ABCD_E3_tau-1_Tp1.cfg',
-                        help    = 'Output config file.')
 
     parser.add_argument('-d', '--configDir',
                         dest    = 'configDir', type = str, 
@@ -190,16 +185,11 @@ def ParseCmdLine():
                         default = 'Out',
                         help    = 'targetNode')
 
-    parser.add_argument('-NP', '--networkPath',
-                        dest    = 'networkPath', type = str, 
-                        action  = 'store',
-                        default = '../network/ABCD_Test/',
-                        help    = 'networkPath for networkFile')
-
     parser.add_argument('-NF', '--networkFile',
                         dest    = 'networkFile', type = str, 
                         action  = 'store',
-                        default = 'ABCD_Network_E3_T0_tau-1_rhoDiff.pkl',
+                        default =\
+                        '../network/ABCD_Test/ABCD_Network_E3_T0_tau-1_CMI.pkl',
                         help    = 'networkFile (pkl)')
 
     parser.add_argument('-ND', '--networkData',
@@ -223,13 +213,13 @@ def ParseCmdLine():
     parser.add_argument('-E', '--E', nargs = '+',
                         dest    = 'E', type = int, 
                         action  = 'store',
-                        default = [3, 5, 7],
+                        default = [5, 6, 7, 8],
                         help    = 'List of E.')
 
     parser.add_argument('-t', '--tau', nargs = '+',
                         dest    = 'tau', type = int, 
                         action  = 'store',
-                        default = [-1, -3, -5],
+                        default = [-1, -2, -3],
                         help    = 'List of tau.')
 
     parser.add_argument('-D', '--DEBUG',

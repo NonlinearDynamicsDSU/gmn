@@ -20,11 +20,12 @@ class GMN:
     from gmn.Plot import Plot
 
     #-------------------------------------------------------------------
-    def __init__( self, args = None, parameters = None,
-                  configFile = None, configDir  = None,
-                  outputFile = None, cores = 4, plot = False,
-                  statePlot  = False, plotColumns = [], plotFile = None,
-                  debug      = False ):
+    def __init__( self, args  = None,  parameters = None,
+                  configFile  = None,  configDir  = None,
+                  outputFile  = None,  cores      = 4,
+                  plot        = False, statePlot  = False,
+                  plotColumns = [],    plotFile   = None,
+                  debug       = False ):
 
         '''Constructor
 
@@ -32,14 +33,14 @@ class GMN:
         args from gmn.CLI_Parser.ParseCmdLine and parameters from
         from gmn.ConfigParser.ReadConfig.
 
-        If args is None, then GMN.__init__ function arguments are
-        used to populate the args.  If parameters is None the 
-        parameters object is created from the args.
+        If parameter args is None GMN.__init__ function arguments
+        are used to partially populate args. If parameters is None
+        Parameters object is created from the args.
         '''
 
         if args is None:
             args = ParseCmdLine() # set default args
-            # Insert parameters into args
+            # Insert constructor arguments into args
             args.configFile  = configFile
             args.configDir   = configDir
             args.outputFile  = outputFile
@@ -75,7 +76,7 @@ class GMN:
 
     #-------------------------------------------------------------------
     def Generate( self ):
-        '''Execute GMN forecast loop for predictionLength steps
+        '''Execute GMN generative loop for predictionLength steps
            calling the Generate() method of each Network Node. 
         '''
 
@@ -96,12 +97,12 @@ class GMN:
             NodeOutput = DataFrame( columns = self.Network.data.columns,
                                     dtype = float )
 
-            # Network Loop           
+            # Network Loop
             for nodeName in Network.TopologicalSorted :
                 node = Graph.nodes[ nodeName ]['Node']
 
                 if self.args.DEBUG_ALL :
-                    print( "GMN Network Loop:", nodeName )
+                    print( "GMN:Generate Network Loop:", nodeName )
                     print( 'columns:', node.Parameters.columns, ':',
                            'target',   node.Parameters.target )
 
@@ -122,6 +123,46 @@ class GMN:
 
         # Reset DataFrame row labels to default 0-offset integers
         self.DataOut.reset_index( drop = True, inplace = True )
+
+        self.Output()
+
+    #-------------------------------------------------------------------
+    def Forecast( self ):
+        '''Execute GMN forecast calling the Forecast() method of each 
+           Network Node. It is presumed that lib & pred are specified.
+        '''
+
+        if self.args.DEBUG or self.args.DEBUG_ALL :
+            print( '-> GMN:Forecast()' )
+
+        # Local References for convenience and readability
+        Network = self.Network
+        Graph   = self.Network.Graph
+
+        # Network Loop
+        for nodeName in Network.TopologicalSorted :
+            node = Graph.nodes[ nodeName ]['Node']
+
+            if self.args.DEBUG_ALL :
+                print( "GMN:Forecast Network Loop:", nodeName )
+                print( 'columns:', node.Parameters.columns, ':',
+                       'target',   node.Parameters.target )
+
+            # Call node Forecast method and store in DataOut
+            self.DataOut[ nodeName ] = node.Forecast()[1]
+
+            if nodeName == Network.TopologicalSorted[0] :
+                # Copy time values : only on first node
+                self.DataOut[ Network.timeColumnName ] = node.Forecast()[0]
+
+        # Reset DataFrame row labels to default 0-offset integers
+        self.DataOut.reset_index( drop = True, inplace = True )
+
+        self.Output()
+
+    #-------------------------------------------------------------------
+    def Output( self ):
+        '''Write DataOut CSV file(s). Plot'''
 
         # Write DataOut CSV file(s)
         if self.args.outputFile:
