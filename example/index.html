@@ -142,25 +142,26 @@
 <p>With a GMN network we can run GMN in generative mode according to the parameters specified in a configuration file (see <a href="../parameters/">Parameters</a>). <code>[EDM]</code> parameters are defined in <a href="https://sugiharalab.github.io/EDM_Documentation/parameters/">EDM Parameters</a>.</p>
 <p>Define the configuration file <code>./network/ABCD_Network_E5_tau-3_CCM.cfg</code> as :</p>
 <pre><code class="language-python">[GMN]
+mode             = Generate
 predictionLength = 300
 predictionStart  = 700
 outPath          = ./output
 dataOutCSV       =
 showPlot         = True
-plotFile         =
 plotType         = state
 plotColumns      = Out A B C D
+plotFile         =
 
 [Network]
 name       = ABCD 4 Driver
 targetNode = Out
-path       = ./output/
-file       = ABCD_Network_E5_tau-3_CCM.pkl
+file       = ./output/ABCD_Network_E5_tau-3_CCM.pkl
 data       = ./data/TestData_ABCD.csv
 
 [Node]
 info       = 
 data       = 
+configPath = 
 function   = Simplex
 
 [EDM]

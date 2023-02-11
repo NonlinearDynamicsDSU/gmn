@@ -70,6 +70,8 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#gmngenerate"> GMN.Generate </a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#gmnforecast"> GMN.Forecast </a>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#gmnplot"> GMN.Plot </a>
     </li>
     </ul>
@@ -221,7 +223,7 @@ G = gmn.GMN( configFile = 'config/default.cfg' )
 <hr />
 <h3 id="gmngenerate"><function> GMN.Generate </function></h3>
 <p><strong> Description </strong>  : <br />
-Execute GMN forecast loop for predictionLength steps calling the Generate() method of each Network Node.</p>
+Execute GMN forecast loop for <code>predictionLength</code> steps calling the Generate() method of each Network Node. Parameters <code>mode</code> must be <code>Generate</code>.</p>
 <p><strong> Returns </strong>  : <br />
 Populates the <code>GMN.DataOut</code> pandas DataFrame. </p>
 <p><strong> Notes </strong> : <br />
@@ -229,6 +231,18 @@ If <code>args.outputFile</code>, or <code>parameters.dataOutCSV</code>: write <c
 <p>if args.Plot or args.StatePlot or parameters.showPlot or parameters.plotFile: call GMN.Plot()</p>
 <p><strong> Example </strong> :   </p>
 <pre><code class="language-python">G.Generate()
+</code></pre>
+<hr />
+<h3 id="gmnforecast"><function> GMN.Forecast </function></h3>
+<p><strong> Description </strong>  : <br />
+Execute GMN <code>Forecast()</code> method of each Network Node. Parameters <code>mode</code> must not be <code>Generate</code>. Presumes Parameters <code>lib</code> and <code>pred</code> are specified in the config file. Does not generate data, but makes predictions over the <code>pred</code> indices based on the <code>lib</code> state-space.</p>
+<p><strong> Returns </strong>  : <br />
+Populates the <code>GMN.DataOut</code> pandas DataFrame. </p>
+<p><strong> Notes </strong> : <br />
+If <code>args.outputFile</code>, or <code>parameters.dataOutCSV</code>: write <code>DataOut</code> as a .csv file.</p>
+<p>if args.Plot or args.StatePlot or parameters.showPlot or parameters.plotFile: call GMN.Plot()</p>
+<p><strong> Example </strong> :   </p>
+<pre><code class="language-python">G.Forecast()
 </code></pre>
 <hr />
 <h3 id="gmnplot"><function> GMN.Plot </function></h3>
@@ -241,6 +255,9 @@ pyplot image </p>
 <h3 id="gmndataout">GMN.DataOut</h3>
 <p><strong> Description </strong>  : <br />
 pandas DataFrame of generated data.</p>
+<h3 id="gmnparameters">GMN.Parameters</h3>
+<p><strong> Description </strong>  : <br />
+Python object of Parameters class.</p>
               
             </div>
           </div>

@@ -119,27 +119,28 @@
 <p><code>[EDM]</code> parameters are defined in <a href="https://sugiharalab.github.io/EDM_Documentation/parameters/">EDM Parameters</a>.</p>
 <h3 id="configuration-file">Configuration File</h3>
 <pre><code class="language-python">[GMN]
-predictionLength = 300
+mode             = Generate
 predictionStart  = 700
+predictionLength = 300
 outPath          = ../output
 dataOutCSV       =
 showPlot         = True
-plotFile         =
 plotType         = state
 plotColumns      = Out A B C D
+plotFile         =
 
 [Network]
 name       = ABCD 4 Driver
 targetNode = Out
-path       = ../network/ABCD_Test/
-file       = ABCD_Network_E3_T0_tau-1_rhoDiff.pkl
+file       = ../network/ABCD_Test/ABCD_Network_E3_T0_tau-1_CMI.pkl
 data       = ../data/TestData_ABCD.csv
 
 [Node]
 info       = Node description
-# If node.cfg in Network.path, Node.data replaces Network.data
-data       = ../data/TestData_ABCD.csv
 function   = Simplex
+# If node.cfg found in configPath: read config, Node.data replaces Network.data
+configPath = 
+data       = 
 
 [EDM]
 # lib &amp; pred are set to lib = [1, N-(E-1)tau]; pred = [N-1, N]
