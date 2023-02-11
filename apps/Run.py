@@ -21,7 +21,10 @@ def main():
     # Instantiate and initialize GMN
     GMN = gmn.GMN( args, parameters )
 
-    GMN.Generate() # Run GMN forward in time
+    if "generate" in parameters.mode.lower() :
+        GMN.Generate() # Run GMN forward in time
+    else :
+        GMN.Forecast() # lib & pred forecast : no generation
 
 #----------------------------------------------------------------------------
 # Provide for cmd line invocation and clean module loading
