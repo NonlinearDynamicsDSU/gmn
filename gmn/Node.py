@@ -155,6 +155,10 @@ class Node:
             self.FunctionType = FunctionType.knn
             self.Function     = None
 
+        else :
+            raise RuntimeError( "Node(): " + nodeName +\
+                                " Invalid node function: " + nodeFunction )
+
     #----------------------------------------------------------------------
     #----------------------------------------------------------------------
     def Generate( self, lastDataOut ):
