@@ -1,11 +1,10 @@
 
 # Python distribution modules
-from enum    import Enum
 from copy    import copy
 from pathlib import Path
 
 # Community modules
-from pandas import read_csv, concat
+from pandas import read_csv
 from pyEDM  import Simplex, SMap, Embed
 
 try:
@@ -16,18 +15,18 @@ try:
 except ImportError as err:
     print( err, "SVR, knn, Linear not available" )
 
+try:
+    from os import environ # JP Need to query not hardwire
+    environ[ 'OMP_PROC_BIND' ] = 'spread'  # kedm : OpenMP settings
+    environ[ 'OMP_PLACES'    ] = 'threads'
+    from kedm import simplex as kedm_simplex
+    from kedm import smap    as kedm_smap
+except ImportError as err:
+    print( err, "kedm not available" )
+
 # Local modules 
 from gmn.ConfigParser import ReadConfig
-
-#-----------------------------------------------------------
-#-----------------------------------------------------------
-class FunctionType( Enum ):
-    '''Enumeration for Function types'''
-    Simplex = 1
-    SMap    = 2
-    Linear  = 3
-    SVR     = 4
-    knn     = 5
+from gmn.Common       import *
 
 #-----------------------------------------------------------
 #-----------------------------------------------------------
@@ -51,6 +50,9 @@ class Node:
     Network Node loop to dispatch the specified FunctionType and return a 
     single prediction value collected across all nodes in GMN.lastDataOut.
     '''
+
+    # import Generate as a Node class method
+    from gmn.Generate import Generate
 
     #----------------------------------------------------------------------
     def __init__( self, args, Network, nodeName ):
@@ -98,7 +100,7 @@ class Node:
                 self.data = data.iloc[ self.Network.dataLib_i ]
 
                 if args.DEBUG_ALL :
-                    print( "Node.__init__() Loaded", self.Parameters.data,
+                    print( "Node.__init__() Loaded", self.Parameters.nodeData,
                            " shape :", str( self.data.shape ) )
                     print( self.data.tail(2) )
             else:
@@ -128,346 +130,52 @@ class Node:
         # Assign node FunctionType and Function
         nodeFunction = self.Parameters.function.lower()
 
-        if "simplex" in nodeFunction :
+        if "simplex" == nodeFunction :
             self.FunctionType = FunctionType.Simplex
             self.Function     = Simplex
 
             # EDM lib index based on input data (subset to predictionStart)
             self.libEnd_i = self.data.shape[0]
 
-        elif "smap" in nodeFunction :
+        elif "smap" == nodeFunction :
             self.FunctionType = FunctionType.SMap
             self.Function     = SMap
 
             # EDM lib index with offset from embedding time shift
+            # since SMap multivariate requires embedded = True
             offset = ( self.Parameters.E ) * abs( self.Parameters.tau )
             self.libEnd_i = self.data.shape[0] - offset
 
-        elif "linear" in nodeFunction :
+        elif "kedmsimplex" == nodeFunction or "kedm_simplex" == nodeFunction:
+            self.FunctionType = FunctionType.kedmSimplex
+            self.Function     = kedm_simplex
+
+            # EDM lib index based on input data (subset to predictionStart)
+            self.libEnd_i = self.data.shape[0]
+
+        elif "kedmsmap" == nodeFunction or "kedm_smap" == nodeFunction:
+            self.FunctionType = FunctionType.kedmSMap
+            self.Function     = kedm_smap
+
+            # EDM lib index based on input data (subset to predictionStart)
+            self.libEnd_i = self.data.shape[0]
+
+        elif "linear" == nodeFunction :
             self.FunctionType = FunctionType.Linear
-            self.Function     = None
+            self.Function     = LinearRegression
 
-        elif "svr" in nodeFunction :
+        elif "svr" == nodeFunction :
             self.FunctionType = FunctionType.SVR
-            self.Function     = None
+            self.Function     = SVR
 
-        elif "knn" in nodeFunction :
+        elif "knn" == nodeFunction :
             self.FunctionType = FunctionType.knn
-            self.Function     = None
+            self.Function     = neighbors.KNeighborsRegressor
 
         else :
             raise RuntimeError( "Node(): " + nodeName +\
                                 " Invalid node function: " + nodeFunction )
 
-    #----------------------------------------------------------------------
-    #----------------------------------------------------------------------
-    def Generate( self, lastDataOut ):
-        '''Called from GMN Generate() in the Network Node loop'''
-
-        if self.args.DEBUG_ALL :
-            print( '-----> Node:Generate() : ',self.FunctionType.name, self.name)
-            print( self.data.tail( 2 ) );
-            print( 'lastDataOut:' ); print( lastDataOut )
-
-        # Append new data to end of node data : except on time step 0
-        # Do not insert via .loc[] : stackoverflow.com/questions/57000903/
-        if not ( lastDataOut is None ):         
-            self.data = concat( [ self.data, lastDataOut ] )
-
-        # Local References for convenience and readability
-        Parameters = self.Parameters
-        data       = self.data
-
-        if self.args.DEBUG_ALL :
-            print( '  Appended data : shape: ', data.shape ); 
-            print( data.tail( 3 ) ); print()
-
-        #--------------------------------------------------------------------
-        if self.FunctionType.value == FunctionType.Simplex.value :
-
-            # If lib or pred are set in Parameters, use them
-            # otherwise lib = [1, libEnd_i], pred = [N-1, N] N = data.shape[0]
-            if len( Parameters.lib ) and not Parameters.lib.isspace():
-                lib = Parameters.lib
-            else:
-                lib = "1 %d" % self.libEnd_i # Constant... for now
-
-            if len( Parameters.pred ) and not Parameters.pred.isspace():
-                pred = Parameters.pred
-            else:
-                pred = "%d %d" % ( data.shape[0] - 1, data.shape[0] )
-
-            S = self.Function( dataFrame       = data,
-                               lib             = lib,
-                               pred            = pred,
-                               E               = Parameters.E,
-                               Tp              = Parameters.Tp,
-                               knn             = Parameters.knn,
-                               tau             = Parameters.tau,
-                               exclusionRadius = Parameters.exclusionRadius,
-                               columns         = Parameters.columns,
-                               target          = Parameters.target,
-                               embedded        = Parameters.embedded,
-                               validLib        = Parameters.validLib,
-                               generateSteps   = Parameters.generateSteps )
-
-            val = S['Predictions'].iloc[-1]
-
-        #--------------------------------------------------------------------
-        elif self.FunctionType.value == FunctionType.SMap.value :
-
-            # JP TODO: Add sklearn solver import/functions...
-            # Convert Parameters.solver to None if empty
-            # if len( Parameters.solver ) == 0 or Parameters.solver.isspace():
-            #     self.Parameters.solver = None
-
-            # SMap multivariate requires embedded = True
-            # Embed data to E, tau
-            df = Embed( dataFrame = data, E = Parameters.E,
-                        tau = Parameters.tau, columns = Parameters.columns )
-
-            # Remove leading NaN from the time shift
-            df = df.dropna()
-
-            # Insert time column for SMap dataFrame
-            df.insert( 0, data.columns[0], data.iloc[:,0] )
-
-            # If lib or pred are set in Parameters, use them
-            # otherwise lib = [1, libEnd_i], pred = [N-1, N] N = df.shape[0]
-            if len( Parameters.lib ) and not Parameters.lib.isspace():
-                lib = Parameters.lib
-            else :
-                lib  = "1 %d" % self.libEnd_i # Constant... for now
-
-            if len( Parameters.pred ) and not Parameters.pred.isspace():
-                pred = Parameters.pred
-            else:
-                pred = "%d %d" % ( df.shape[0] - 1, df.shape[0] )
-
-            # Note: dataFrame = df, columns, target from embedding
-            S = self.Function( dataFrame       = df,
-                               lib             = lib,
-                               pred            = pred,
-                               E               = Parameters.E,
-                               Tp              = Parameters.Tp,
-                               knn             = Parameters.knn,
-                               tau             = Parameters.tau,
-                               theta           = Parameters.theta,
-                               exclusionRadius = Parameters.exclusionRadius,
-                               columns         = df.columns[1:-1],
-                               target          = Parameters.target + '(t-0)',
-                               solver          = None, # Parameters.solver,
-                               embedded        = Parameters.embedded,
-                               validLib        = Parameters.validLib,
-                               generateSteps   = Parameters.generateSteps )
-
-            val = S['predictions']['Predictions'].iloc[-1]
-
-            # SMap can diverge if E, tau are not appropriate
-            if abs( val ) > 1E15 :
-                raise RuntimeError( "Generate:SMap() Node: " + self.name +\
-                                    "   Divergence detected (>1E15)" )
-
-        #--------------------------------------------------------------------
-        elif self.FunctionType.value == FunctionType.Linear.value :
-
-            X = data[ Parameters.columns ]
-            #if len( Parameters.columns ) > 1 :
-            #    X  = X.drop( self.name, axis = 'columns' )
-            X = X.values
-            y = data[ Parameters.target ].values.copy()
-
-            lr = LinearRegression()
-            lr.fit( X, y )
-
-            nextX = self.FindNextX( X )
-            pred  = lr.predict( nextX )
-            val   = pred[ 0 ]
-
-        #--------------------------------------------------------------------
-        elif self.FunctionType.value == FunctionType.SVR.value :
-
-            X = data[ Parameters.columns ]
-            #if len( Parameters.columns ) > 1 :
-            #    X  = X.drop( self.name, axis = 'columns' )
-            X = X.values
-            y = data[ Parameters.target ].values.copy()
-
-            svr = SVR( kernel = 'rbf', gamma = 'scale', tol = 0.001,
-                       epsilon = 0.1, shrinking = True, cache_size = 200,
-                       verbose = False, max_iter = -1 )
-            svr.fit( X, y )
-
-            nextX = self.FindNextX( X )
-            pred  = svr.predict( nextX )
-            val   = pred[ 0 ]
-
-        #--------------------------------------------------------------------
-        elif self.FunctionType.value == FunctionType.knn.value :
-
-            X = data[ Parameters.columns ]
-
-            if len( Parameters.columns ) > 1 :
-                # Remove self from X
-                X  = X.drop( self.name, axis = 'columns' )
-
-            X = X.values
-            y = data[ Parameters.target ].values.copy()
-
-            # JP: n_neighbors should be a Parameter
-            knn = neighbors.KNeighborsRegressor( n_neighbors = 10,
-                                                 weights = 'distance' )
-            knn.fit( X, y )
-
-            nextX = self.FindNextX( X )
-            pred  = knn.predict( nextX )
-            val   = pred[ 0 ]
-
-        if self.args.DEBUG_ALL :
-            print( self.name, "val:", val )
-            print( '<----- Node:Generate() : ',self.FunctionType.name,self.name )
-            print()
-
-        return val
-
-    #----------------------------------------------------------------------
-    #----------------------------------------------------------------------
-    def FindNextX( self, X ):
-        '''Find closest X not equal to X[-1,:], Tp step ahead '''
-
-        x    = X[-1,:]
-        Dmin = 1E15
-        imin = None
-
-        # Limit X to the data "library" as in EDM
-        for i in range( self.Parameters.predictionStart ) :
-            xi = X[i,:]
-            D  = dist( x, xi )
-            if D < Dmin :
-                Dmin = D
-                imin = i
-
-        # Tp steps ahead
-        #if imin + self.Parameters.Tp < X.shape[ 0 ] :
-        #    imin = imin + self.Parameters.Tp
-
-        return( X[imin + 1,:].reshape(1,-1) )
-
-    #----------------------------------------------------------------------
-    #----------------------------------------------------------------------
-    def Forecast( self ):
-        '''Called from GMN Forecast() in the Network Node loop'''
-
-        if self.args.DEBUG_ALL :
-            print( '-----> Node:Forecast() : ',self.FunctionType.name, self.name)
-            print( self.data.tail( 2 ) );
-
-        # Local References for convenience and readability
-        Parameters = self.Parameters
-        data       = self.data
-
-        if self.args.DEBUG_ALL :
-            print( '  data : shape: ', data.shape ); 
-            print( data.tail( 3 ) ); print()
-
-        #--------------------------------------------------------------------
-        if self.FunctionType.value == FunctionType.Simplex.value :
-
-            # If lib or pred are set in Parameters, use them
-            # otherwise lib = [1, libEnd_i], pred = [N-1, N] N = data.shape[0]
-            if len( Parameters.lib ) and not Parameters.lib.isspace():
-                lib = Parameters.lib
-            else:
-                lib = "1 %d" % self.libEnd_i # Constant... for now
-
-            if len( Parameters.pred ) and not Parameters.pred.isspace():
-                pred = Parameters.pred
-            else:
-                pred = "%d %d" % ( data.shape[0] - 1, data.shape[0] )
-
-            S = self.Function( dataFrame       = data,
-                               lib             = lib,
-                               pred            = pred,
-                               E               = Parameters.E,
-                               Tp              = Parameters.Tp,
-                               knn             = Parameters.knn,
-                               tau             = Parameters.tau,
-                               exclusionRadius = Parameters.exclusionRadius,
-                               columns         = Parameters.columns,
-                               target          = Parameters.target,
-                               embedded        = Parameters.embedded,
-                               validLib        = Parameters.validLib,
-                               generateSteps   = Parameters.generateSteps )
-
-            # Return tuple of time and Predictions
-            val = ( S.iloc[:,0], S['Predictions'] )
-
-        #--------------------------------------------------------------------
-        elif self.FunctionType.value == FunctionType.SMap.value :
-
-            # SMap multivariate requires embedded = True
-            # Embed data to E, tau
-            df = Embed( dataFrame = data, E = Parameters.E,
-                        tau = Parameters.tau, columns = Parameters.columns )
-
-            # Remove leading NaN from the time shift
-            df = df.dropna()
-
-            # Insert time column for SMap dataFrame
-            df.insert( 0, data.columns[0], data.iloc[:,0] )
-
-            # If lib or pred are set in Parameters, use them
-            # otherwise lib = [1, libEnd_i], pred = [N-1, N] N = df.shape[0]
-            if len( Parameters.lib ) and not Parameters.lib.isspace():
-                lib = Parameters.lib
-            else :
-                lib  = "1 %d" % self.libEnd_i # Constant... for now
-
-            if len( Parameters.pred ) and not Parameters.pred.isspace():
-                pred = Parameters.pred
-            else:
-                pred = "%d %d" % ( df.shape[0] - 1, df.shape[0] )
-
-            # Note: dataFrame = df, columns, target from embedding
-            S = self.Function( dataFrame       = df,
-                               lib             = lib,
-                               pred            = pred,
-                               E               = Parameters.E,
-                               Tp              = Parameters.Tp,
-                               knn             = Parameters.knn,
-                               tau             = Parameters.tau,
-                               theta           = Parameters.theta,
-                               exclusionRadius = Parameters.exclusionRadius,
-                               columns         = df.columns[1:-1],
-                               target          = Parameters.target + '(t-0)',
-                               solver          = None, # Parameters.solver,
-                               embedded        = Parameters.embedded,
-                               validLib        = Parameters.validLib,
-                               generateSteps   = Parameters.generateSteps )
-
-            # Return tuple of time and Predictions
-            val = ( S['predictions'].iloc[:,0], S['predictions']['Predictions'] )
-
-            # SMap can diverge if E, tau are not appropriate
-            if val.max() > 1E15 :
-                raise RuntimeError( "Forecast:SMap() Node: " + self.name +\
-                                    "   Divergence detected (>1E15)" )
-
-        #--------------------------------------------------------------------
-        elif self.FunctionType.value == FunctionType.Linear.value :
-            raise RuntimeError( "Forecast Linear function not available" )
-
-        #--------------------------------------------------------------------
-        elif self.FunctionType.value == FunctionType.SVR.value :
-            raise RuntimeError( "Forecast SVR function not available" )
-
-        #--------------------------------------------------------------------
-        elif self.FunctionType.value == FunctionType.knn.value :
-            raise RuntimeError( "Forecast knn function not available" )
-
-        if self.args.DEBUG_ALL :
-            print( self.name, "val:", val )
-            print( '<----- Node:Forecast() : ',self.FunctionType.name,self.name )
-            print()
-
-        return val
+        if args.DEBUG_ALL :
+            print( '<- Node.__init__() : ', nodeName,
+                   nodeFunction, str( self.FunctionType ), str( self.Function ) )

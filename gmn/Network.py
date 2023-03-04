@@ -82,7 +82,7 @@ class Network:
                 # Indices for "data library" from index 1 to predictionStart
                 self.dataLib_i = range( parameters.predictionStart )
             else :
-                # Forecast mode : all data
+                # Forecast mode : all data since lib & pred are specified
                 self.dataLib_i = range( self.data.shape[0] )
 
             if args.DEBUG or args.DEBUG_ALL :
