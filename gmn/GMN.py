@@ -51,7 +51,7 @@ class GMN:
             args.PlotFile    = plotFile
             args.DEBUG       = debug
 
-        if args.configFile is None:
+        if args.configDir is None and args.configFile is None:
             raise RuntimeError( 'GMN(): configFile is required.' )
 
         if parameters is None:
