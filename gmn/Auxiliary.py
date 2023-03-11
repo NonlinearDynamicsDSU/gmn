@@ -43,7 +43,7 @@ def TimeExtension( times, length = 1, verbose = False ) :
         lastValue = times[-1] # is date class
         deltaTime = times[-1] - times[-2]
     else:
-        try:               d = date.fromisoformat( str( times[-1] ) )
+        try: d = date.fromisoformat( str( times[-1] ) )
         except ValueError: pass
         else:
             isDate    = True;
@@ -57,7 +57,7 @@ def TimeExtension( times, length = 1, verbose = False ) :
             lastValue = times[-1] # is datetime class
             deltaTime = times[-1] - times[-2]
         else:
-            try:               dt = datetime.fromisoformat( str( times[-1] ) )
+            try: dt = datetime.fromisoformat( str( times[-1] ) )
             except ValueError: pass
             else:
                 isDateTime = True
@@ -71,7 +71,7 @@ def TimeExtension( times, length = 1, verbose = False ) :
             lastValue = times[-1] # int
             deltaTime = times[-1] - times[-2]
         else:
-            try:               int( str( times[-1] ) )
+            try: int( str( times[-1] ) )
             except ValueError: pass
             else:
                 isInt     = True
@@ -85,7 +85,7 @@ def TimeExtension( times, length = 1, verbose = False ) :
             lastValue = times[-1] # float
             deltaTime = times[-1] - times[-2]
         else:
-            try:               float( str( times[-1] ) )
+            try: float( str( times[-1] ) )
             except ValueError: pass
             else:
                 isFloat   = True
@@ -170,10 +170,10 @@ def TestTimeExtension( length = 3 ) :
     f2  = 10.6
 
     TimeExtension( [ dt, dt2 ], length, True ) # why date object ? subclass ?
-    TimeExtension( [ d, d2 ], length, True )
-    TimeExtension( [ t, t2 ], length, True )
-    TimeExtension( [ i, i2 ], length, True )
-    TimeExtension( [ f, f2 ], length, True )
+    TimeExtension( [ d, d2 ],   length, True )
+    TimeExtension( [ t, t2 ],   length, True )
+    TimeExtension( [ i, i2 ],   length, True )
+    TimeExtension( [ f, f2 ],   length, True )
 
     print()
 

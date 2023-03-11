@@ -20,7 +20,8 @@ def ReadConfig( args, configurationFile = None ):
 
     config = configparser.ConfigParser()
 
-    config.read( configFile )
+    if not config.read( configFile ):
+        raise RuntimeError( 'ReadConfig(): failed to read ' + configFile )
 
     # Map config file values into param
     param = Parameters()

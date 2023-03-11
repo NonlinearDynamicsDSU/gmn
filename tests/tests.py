@@ -29,7 +29,8 @@ class test_GMN( unittest.TestCase ):
         self.Files = {}
 
         dataFiles = [ "DataOut_ABCD_CMI_E7_tau-3.csv",
-                      "DataOut_ABCD_A1_CMI_E7_tau-3.csv" ]
+                      "DataOut_ABCD_A1_CMI_E7_tau-3.csv",
+                      "DataOut_ABCD_Forecast_E7_tau-3.csv" ]
 
         # self.Files map of DataFrames from dataFiles
         for fileName in dataFiles:
@@ -85,6 +86,24 @@ class test_GMN( unittest.TestCase ):
         df = self.Files[ "DataOut_ABCD_A1_CMI_E7_tau-3.csv" ]
  
         self.assertTrue( df.equals( GMN.DataOut.round(4) ) )
+
+    #------------------------------------------------------------
+    # GMN Forecast :
+    #------------------------------------------------------------
+    def test_forecast( self ):
+        '''ABCD Network in Forecast mode'''
+
+        # Instantiate and initialize GMN
+        # gmn_test_readNode.cfg : Node.configPath = ../tests/
+        GMN = gmn.GMN( configFile = 'gmn_forecast1.cfg' )
+
+        GMN.Forecast() # Run GMN forecast
+
+        # Ignore 1st column of Time: .iloc[:,1:5]
+        # pandas converts GMN.DataOut Time to "object", df.equals fails
+        df = self.Files[ "DataOut_ABCD_Forecast_E7_tau-3.csv" ].iloc[:,1:5]
+
+        self.assertTrue( df.equals( GMN.DataOut.round(4).iloc[:,1:5] ) )
 
 #------------------------------------------------------------
 #

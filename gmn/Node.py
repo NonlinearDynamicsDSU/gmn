@@ -51,8 +51,9 @@ class Node:
     single prediction value collected across all nodes in GMN.lastDataOut.
     '''
 
-    # import Generate as a Node class method
+    # import Generate, Forecast as a Node class method
     from gmn.Generate import Generate
+    from gmn.Forecast import Forecast
 
     #----------------------------------------------------------------------
     def __init__( self, args, Network, nodeName ):
