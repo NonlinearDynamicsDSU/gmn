@@ -2,7 +2,7 @@
 
 import time, argparse, pickle
 from   math            import nan
-from   itertools       import product, repeat
+from   itertools       import combinations_with_replacement, repeat
 from   multiprocessing import Pool
 
 import matplotlib.pyplot as plt
@@ -117,18 +117,19 @@ def main():
     if len( args.lib  ) == 0 : args.lib  = [1, args.numRows]
     if len( args.pred ) == 0 : args.pred = [1, args.numRows]
 
-    # Iterable of all columns x columns. Start at 1 to skip time column
-    crossColumns = list( product( range( 1, args.numCols ),
-                                  range( 1, args.numCols ) ) )
+    # Iterable of upper triangular of all columns x columns since CCM()
+    # computes both CCM(i,j) and CCM(j,i); Start at 1 to skip first column
+    crossColumns = \
+        list( combinations_with_replacement( range( 1, args.numCols ), 2 ) )
 
     # Pack crossColumns into iterable with copies of args, data
-    # Each iterable item will be: (col1, col2), args, data, lock
+    # Each iterable item will be: (col1, col2), args, data
     poolArgs = zip( crossColumns, repeat( args ), repeat( data ) )
+
+    if args.verbose: print( "Starting pool.starmap" )
 
     # Use pool.starmap to distribute among cores
     pool = Pool( processes = args.cores )
-
-    if args.verbose: print( "Starting pool.starmap" )
 
     # starmap: elements of the iterable argument are iterables
     #          that are unpacked as arguments
@@ -137,14 +138,14 @@ def main():
     if args.verbose: print( "Result has ", str( len( CMList ) ), " items." )
 
     # Create matrices to hold results from StarMapFunc()
-    CCM_ = CM = CC = IXY = NL = rhoDiff = CMI = SMap = None
-    if args.CCM      : CCM_  = full ( ( N - 1, N - 1 ), nan )
-    if args.CrossMap : CM    = full ( ( N - 1, N - 1 ), nan )
-    if args.rho      : CC    = full ( ( N - 1, N - 1 ), nan )
-    if args.MI       : IXY   = full ( ( N - 1, N - 1 ), nan )
-    if args.MI_NL    : NL    = full ( ( N - 1, N - 1 ), nan )
-    if args.CMI      : CMI   = full ( ( N - 1, N - 1 ), nan )
-    if args.SMap     : SMap  = full ( ( N - 1, N - 1 ), nan )
+    CCM_mat = CM = CC = IXY = NL = rhoDiff = CMI = SMap = None
+    if args.CCM      : CCM_mat = full ( ( N - 1, N - 1 ), nan )
+    if args.CrossMap : CM      = full ( ( N - 1, N - 1 ), nan )
+    if args.rho      : CC      = full ( ( N - 1, N - 1 ), nan )
+    if args.MI       : IXY     = full ( ( N - 1, N - 1 ), nan )
+    if args.MI_NL    : NL      = full ( ( N - 1, N - 1 ), nan )
+    if args.CMI      : CMI     = full ( ( N - 1, N - 1 ), nan )
+    if args.SMap     : SMap    = full ( ( N - 1, N - 1 ), nan )
 
     col1Names = [""] * ( N - 1 )
     col2Names = [""] * ( N - 1 )
@@ -157,16 +158,34 @@ def main():
         col1 = D['col1'] - 1  # Zero offset for time column
         col2 = D['col2'] - 1
 
-        if args.CCM      : CCM_[ col1, col2 ] = D['CCM']
-        if args.CrossMap : CM  [ col1, col2 ] = D['CM']
-        if args.rho      : CC  [ col1, col2 ] = D['CC']
-        if args.MI       : IXY [ col1, col2 ] = D['IXY']
-        if args.MI_NL    : NL  [ col1, col2 ] = D['NL']
-        if args.CMI      : CMI [ col1, col2 ] = D['CMI']
-        if args.SMap     : SMap[ col1, col2 ] = D['SMap']
+        if args.CCM :
+            CCM_mat[ col1, col2 ] = D['CCM_XY']
+            CCM_mat[ col2, col1 ] = D['CCM_YX']
+        if args.CrossMap :
+            CM[ col1, col2 ] = D['CM_XY']
+            CM[ col2, col1 ] = D['CM_YX']
+        if args.rho :
+            CC[ col1, col2 ] = D['CC_XY']
+            CC[ col2, col1 ] = D['CC_YX']
+        if args.MI :
+            IXY[ col1, col2 ] = D['IXY']
+            IXY[ col2, col1 ] = D['IYX']
+        if args.MI_NL :
+            NL [ col1, col2 ] = D['NL_XY']
+            NL [ col2, col1 ] = D['NL_YX']
+        if args.CMI :
+            CMI[ col1, col2 ] = D['CMI_XY']
+            CMI[ col2, col1 ] = D['CMI_YX']
+        if args.SMap :
+            SMap[ col1, col2 ] = D['SMap_XY']
+            SMap[ col2, col1 ] = D['SMap_YX']
 
         col1Names[ col1 ] = D['column']
         col2Names[ col2 ] = D['target']
+
+        # if "reverse" names are empty, fill in
+        if not col1Names[ col2 ]: col1Names[ col2 ] = D['target']
+        if not col2Names[ col1 ]: col2Names[ col1 ] = D['column']
 
     # Gerald defines rhoDiff = max( CM, 0 ) - abs( CC )
     if args.rhoDiff :
@@ -179,7 +198,7 @@ def main():
     SMap_df = CMI_df = None
 
     # DataFrame(data=None, index=None, columns=None, dtype=None, copy=None)
-    if args.CCM      : CCM_df     = DataFrame( CCM_,    col2Names, col1Names )
+    if args.CCM      : CCM_df     = DataFrame( CCM_mat, col2Names, col1Names )
     if args.CrossMap : CM_df      = DataFrame( CM,      col2Names, col1Names )
     if args.rho      : CC_df      = DataFrame( CC,      col2Names, col1Names )
     if args.MI       : IXY_df     = DataFrame( IXY,     col2Names, col1Names )
@@ -320,6 +339,8 @@ def StarMapFunc( crossColumns, args, data ):
     '''Simplex cross map, CCM, Uncertainty coefficient, Pearsons rho,
        Mutual Information Non Linearity & Pao's rho diff on one
        pair of columns of the input data.
+
+       Since CCM returns X:Y and Y:X, also compute pairs of all metrics
     '''
 
     col1 = crossColumns[ 0 ] # unpack columns from tuple
@@ -337,7 +358,7 @@ def StarMapFunc( crossColumns, args, data ):
     #-------------------------------------------------------
     # EDM Cross Map via Simplex
     #-------------------------------------------------------
-    CM = None
+    CM_XY = CM_YX = None
     if args.CrossMap:
         S = Simplex( dataFrame       = data,
                      lib             = args.lib,
@@ -354,12 +375,30 @@ def StarMapFunc( crossColumns, args, data ):
                      const_pred      = False,
                      showPlot        = False )
 
-        CM = ComputeError( S['Observations'], S['Predictions'] )['rho']
+        CM_XY = ComputeError( S['Observations'], S['Predictions'] )['rho']
+
+        # Exchange columns : target for CCM_YX
+        S = Simplex( dataFrame       = data,
+                     lib             = args.lib,
+                     pred            = args.pred,
+                     E               = args.E,
+                     Tp              = args.Tp,
+                     knn             = 0,
+                     tau             = -1,
+                     exclusionRadius = args.exclusionRadius,
+                     columns         = target,
+                     target          = column,
+                     embedded        = False,
+                     verbose         = False,
+                     const_pred      = False,
+                     showPlot        = False )
+
+        CM_YX = ComputeError( S['Observations'], S['Predictions'] )['rho']
 
     #-------------------------------------------------------
     # EDM CCM
     #-------------------------------------------------------
-    CCMap = None
+    CCM_XY = CCM_YX = None
     if args.CCM:
         # Setup libSizes with two values, one small, one near N
         libMin   = max( [ 10, int( args.libMinFraction * data.shape[0] ) ] )
@@ -382,50 +421,70 @@ def StarMapFunc( crossColumns, args, data ):
 
         # cmap [ LibSize, column:target, target:column ] x 2 rows
         # delta is CCM at large libSize - CCM at small libSize
-        deltaCCM = max( cmap.iloc[1,1] - cmap.iloc[0,1], 0 )
-        if deltaCCM > args.deltaCCM :
-            CCMap = cmap.iloc[1,1] # Large library value
-        else :
-            CCMap = 0 # no convergence
+        CCM_XY = CCM_YX = 0 # no convergence
+        deltaCCM_XY = max( cmap.iloc[1,1] - cmap.iloc[0,1], 0 )
+        deltaCCM_YX = max( cmap.iloc[1,2] - cmap.iloc[0,2], 0 )
+        if deltaCCM_XY > args.deltaCCM :
+            CCM_XY = cmap.iloc[1,1] # Large library value
+        if deltaCCM_YX > args.deltaCCM :
+            CCM_YX = cmap.iloc[1,2] # Large library value
 
     #-------------------------------------------------------
     # Linear correlation 
     #-------------------------------------------------------
-    CC = None
+    CC_XY = CC_YX = None
     if args.rho:
-        CC = corrcoef( x, y )[0,1]
+        CC_XY = corrcoef( x, y )[0,1]
+        CC_YX = CC_XY
 
     #-------------------------------------------------------
     # Non Linearity based on Mutual Information
     #-------------------------------------------------------
-    IXY = NonLinear = None
+    IXY = IYX = NonLinear_XY = NonLinear_YX = None
     if args.MI :
         # Step 1: Mutual information of original variables.
         IXY = MI( x.reshape(-1,1), y,
                   discrete_features = False, n_neighbors = args.neighbors,
                   copy = True, random_state = None )[0]
 
+        IYX = MI( y.reshape(-1,1), x,
+                  discrete_features = False, n_neighbors = args.neighbors,
+                  copy = True, random_state = None )[0]
+
     if args.MI_NL :
         # Step 2: Least-squares regression predicting Y given X.
         #         Y_ = predictions  residuals z = Y - Y_
-        LM = LinearRegression( copy_X = True, n_jobs = None )
-        LM.fit( x.reshape(-1,1), y )
-        z = y - LM.predict( x.reshape(-1,1) )
+        LM_XY = LinearRegression( copy_X = True, n_jobs = None )
+        LM_XY.fit( x.reshape(-1,1), y )
+        z_XY = y - LM_XY.predict( x.reshape(-1,1) )
+
+        LM_YX = LinearRegression( copy_X = True, n_jobs = None )
+        LM_YX.fit( y.reshape(-1,1), x )
+        z_YX = x - LM_YX.predict( y.reshape(-1,1) )
 
         # Step 3: Analysis of residuals.
         # van der Waerden normal quantile transform
         # Map CDF of the linear regression residuals onto the CDF of
         # the dependent variable to ensure the mapped residual CDF and PDF
         # match those of the dependent variable and have the same entropy.
-        Gz     = ECDF( z )
-        zVals  = linspace( min( y ), max( y ), len( y ) )
-        GzProb = Gz( zVals )
-        yPrime = quantile( y, GzProb )
+        Gz_XY     = ECDF( z_XY )
+        zVals_XY  = linspace( min( y ), max( y ), len( y ) )
+        GzProb_XY = Gz_XY( zVals_XY )
+        yPrime_XY = quantile( y, GzProb_XY )
+
+        Gz_YX     = ECDF( z_YX )
+        zVals_YX  = linspace( min( x ), max( x ), len( x ) )
+        GzProb_YX = Gz_YX( zVals_YX )
+        yPrime_YX = quantile( x, GzProb_YX )
 
         # Step 4: Calculate mutual information of X and Y'
         #         Ixy' represents the mutual information of X and Y minus
         #         their linear dependence.   Note: Ixy >= Ixy'.
-        IXYp = MI( x.reshape(-1,1), yPrime,
+        IXYp = MI( x.reshape(-1,1), yPrime_XY,
+                   discrete_features = False, n_neighbors = args.neighbors,
+                   copy = True, random_state = None )[0]
+
+        IYXp = MI( y.reshape(-1,1), yPrime_YX,
                    discrete_features = False, n_neighbors = args.neighbors,
                    copy = True, random_state = None )[0]
 
@@ -439,39 +498,59 @@ def StarMapFunc( crossColumns, args, data ):
             IXYp = 0  # Invalid model... set for 0 NonLinear
 
         if ( IXY == 0 ) :  # X & Y are independent
-            NonLinear = nan
-            Linear    = nan
+            NonLinear_XY = nan
+            Linear_XY    = nan
         else :
-            NonLinear = IXYp / IXY 
-            Linear    = 1 - NonLinear
+            NonLinear_XY = IXYp / IXY 
+            Linear_XY    = 1 - NonLinear_XY
+
+        if ( IYXp > IYX ) :
+            IYXp = 0  # Invalid model... set for 0 NonLinear
+
+        if ( IYX == 0 ) :  # X & Y are independent
+            NonLinear_YX = nan
+            Linear_YX    = nan
+        else :
+            NonLinear_YX = IYXp / IYX
+            Linear_YX    = 1 - NonLinear_YX
 
     #-------------------------------------------------------
     # CCM -> MI
     #-------------------------------------------------------
-    CMI = None
+    CMI_XY = CMI_YX = None
     if args.CMI:
-        if CCMap > 0 :
-            CMI = IXY
+        if CCM_XY > 0 :
+            CMI_XY = IXY
+        if CCM_YX > 0 :
+            CMI_YX = IYX
 
     #-------------------------------------------------------
     # SMap NL
     #-------------------------------------------------------
-    SMap = None
+    SMap_XY = SMap_YX = None
     if args.SMap :
-        SMap = PredictNL( column, target, args, data )
+        SMap_XY = PredictNL( column, target, args, data )
+        SMap_YX = PredictNL( target, column, args, data )
 
     #-------------------------------------------------------
-    result = { 'col1'   : col1,
-               'col2'   : col2,
-               'column' : column,
-               'target' : target,
-               'CCM'    : CCMap,
-               'CM'     : CM,
-               'CC'     : CC,
-               'IXY'    : IXY,
-               'NL'     : NonLinear,
-               'CMI'    : CMI,
-               'SMap'   : SMap }
+    result = { 'col1'    : col1,
+               'col2'    : col2,
+               'column'  : column,
+               'target'  : target,
+               'CCM_XY'  : CCM_XY,
+               'CCM_YX'  : CCM_YX,
+               'CM_XY'   : CM_XY,
+               'CM_YX'   : CM_YX,
+               'CC_XY'   : CC_XY,
+               'CC_YX'   : CC_YX,
+               'IXY'     : IXY,
+               'IYX'     : IYX,
+               'NL_XY'   : NonLinear_XY,
+               'NL_YX'   : NonLinear_YX,
+               'CMI_XY'  : CMI_XY,
+               'CMI_YX'  : CMI_YX,
+               'SMap_XY' : SMap_XY,
+               'SMap_YX' : SMap_YX }
 
     return result
 

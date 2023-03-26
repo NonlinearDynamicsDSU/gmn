@@ -106,6 +106,14 @@ def Forecast( self ):
                                 "   Divergence detected (>1E15)" )
 
     #--------------------------------------------------------------------
+    elif self.FunctionType.value == FunctionType.kedmSimplex.value :
+        raise RuntimeError( "Forecast kedmSimplex function not available" )
+
+    #--------------------------------------------------------------------
+    elif self.FunctionType.value == FunctionType.kedmSMap.value :
+        raise RuntimeError( "Forecast kedmSMap function not available" )
+
+    #--------------------------------------------------------------------
     elif self.FunctionType.value == FunctionType.Linear.value :
         raise RuntimeError( "Forecast Linear function not available" )
 

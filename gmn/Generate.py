@@ -118,17 +118,18 @@ def Generate( self, lastDataOut ):
                                 "   Divergence detected (>1E15)" )
 
     #--------------------------------------------------------------------
-    if self.FunctionType.value == FunctionType.kedmSimplex.value :
+    elif self.FunctionType.value == FunctionType.kedmSimplex.value :
 
-        # JP: kedm simplex is univariate, ndarray
-        data_ = data[ self.name ] # Series
+        # Get library and target for kedm simplex as ndarray
+        data_ = data[ Parameters.columns ] # DataFrame; includes target
 
-        # Get library and target for kedm simplex
-        library = data_.iloc[ : self.libEnd_i ].values # numpy.ndarray
+        library = data_.iloc[ : self.libEnd_i, : ].values
 
         # JP kedm seems to core if not enough target data...
         targetLen = Parameters.E * abs( Parameters.tau )
-        target    = data_.iloc[ -targetLen : ].values
+        # JP kedm simplex MV target must be same number of columns as library
+        #    and in the same order as columns
+        target = data_.iloc[ -targetLen : ].values
 
         S = self.Function( library = library,
                            target  = target,
@@ -136,10 +137,11 @@ def Generate( self, lastDataOut ):
                            tau     = abs( Parameters.tau ),
                            Tp      = Parameters.Tp )
 
-        val = S[-1] # numpy.ndarray
+        # JP target was the last column in data_, use S last column 
+        val = S[ -1, S.shape[1] - 1 ] # numpy.ndarray
 
     #--------------------------------------------------------------------
-    if self.FunctionType.value == FunctionType.kedmSMap.value :
+    elif self.FunctionType.value == FunctionType.kedmSMap.value :
 
         # JP: kedm smap is univariate, ndarray
         data_ = data[ self.name ] # Series

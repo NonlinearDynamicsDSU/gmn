@@ -122,6 +122,7 @@ class Node:
              self.Parameters.target = self.name
 
         # columns are inputs to the node + target
+        # target required if node has no input, predict the var itself
         if len(self.Parameters.columns)==0 or self.Parameters.columns.isspace():
             # predecessors(n) returns an iterator over predecessor nodes of n.
             self.Parameters.columns = \
@@ -178,5 +179,7 @@ class Node:
                                 " Invalid node function: " + nodeFunction )
 
         if args.DEBUG_ALL :
-            print( '<- Node.__init__() : ', nodeName,
-                   nodeFunction, str( self.FunctionType ), str( self.Function ) )
+            print( 'columns:', self.Parameters.columns )
+            print( 'target:',  self.Parameters.target  )
+            print( str( self.FunctionType ), str( self.Function ) ) 
+            print( '<- Node.__init__() : ', nodeName )
