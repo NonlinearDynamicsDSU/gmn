@@ -3,6 +3,8 @@
 
 # Community modules
 from pandas import concat
+from numpy  import arange
+from pyEDM  import Embed
 
 # Local modules
 from gmn.Common import *
@@ -76,10 +78,12 @@ def Generate( self, lastDataOut ):
                     tau = Parameters.tau, columns = Parameters.columns )
 
         # Remove leading NaN from the time shift
-        df = df.dropna()
+        offset = ( Parameters.E - 1 ) * abs( Parameters.tau )
+        df = df.iloc[ offset : ]
 
-        # Insert time column for SMap dataFrame
-        df.insert( 0, data.columns[0], data.iloc[:,0] )
+        # Create & insert bogus time column for SMap dataFrame
+        timeColumn = arange( df.shape[0] )
+        df.insert( 0, 'time', timeColumn, allow_duplicates = True )
 
         # If lib or pred are set in Parameters, use them
         # otherwise lib = [1, libEnd_i], pred = [N-1, N] N = df.shape[0]
@@ -120,45 +124,44 @@ def Generate( self, lastDataOut ):
     #--------------------------------------------------------------------
     elif self.FunctionType.value == FunctionType.kedmSimplex.value :
 
-        # Get library and target for kedm simplex as ndarray
         data_ = data[ Parameters.columns ] # DataFrame; includes target
 
-        library = data_.iloc[ : self.libEnd_i, : ].values
-
-        # JP kedm seems to core if not enough target data...
+        # Get lib, pred and target for kedm simplex
+        # JP kedm seems to core if not enough pred rows
         targetLen = Parameters.E * abs( Parameters.tau )
-        # JP kedm simplex MV target must be same number of columns as library
-        #    and in the same order as columns
-        target = data_.iloc[ -targetLen : ].values
+        pred    = data_.iloc[ -targetLen : ]    # targetLen rows before end
+        library = data_.iloc[ : self.libEnd_i ] # first to libEnd_i rows
+        target  = library[ Parameters.target ]  # same rows as library
 
-        S = self.Function( library = library,
-                           target  = target,
-                           E       = Parameters.E,
-                           tau     = abs( Parameters.tau ),
-                           Tp      = Parameters.Tp )
+        S = self.Function( lib    = library.values, # ndarray to kedm
+                           pred   = pred.values,    # ndarray to kedm
+                           target = target.values,  # ndarray to kedm
+                           E      = Parameters.E,
+                           tau    = abs( Parameters.tau ),
+                           Tp     = Parameters.Tp )
 
-        # JP target was the last column in data_, use S last column 
-        val = S[ -1, S.shape[1] - 1 ] # numpy.ndarray
+        val = S[-1] # numpy.ndarray
 
     #--------------------------------------------------------------------
     elif self.FunctionType.value == FunctionType.kedmSMap.value :
 
-        # JP: kedm smap is univariate, ndarray
+        # JP: kedm smap is univariate, force to self.name node I/O
         data_ = data[ self.name ] # Series
 
-        # Get library and target
-        library = data_.iloc[ : self.libEnd_i ].values
-
-        # JP kedm seems to core if not enough target data...
+        # Get lib, pred and target for kedm smap
+        # JP kedm seems to core if not enough pred data
         targetLen = Parameters.E * abs( Parameters.tau )
-        target    = data_.iloc[ -targetLen : ].values
+        pred    = data_.iloc[ -targetLen : ]    # targetLen rows before end
+        library = data_.iloc[ : self.libEnd_i ] # first to libEnd_i rows
+        target  = library                       # same rows as library
 
-        S = self.Function( library = library,
-                           target  = target,
-                           E       = Parameters.E,
-                           tau     = abs( Parameters.tau ),
-                           Tp      = Parameters.Tp,
-                           theta   = Parameters.theta )
+        S = self.Function( lib    = library.values, # ndarray to kedm
+                           pred   = pred.values,    # ndarray to kedm
+                           target = target.values,  # ndarray to kedm
+                           E      = Parameters.E,
+                           tau    = abs( Parameters.tau ),
+                           Tp     = Parameters.Tp,
+                           theta  = Parameters.theta )
 
         val = S[-1] # numpy.ndarray
 
