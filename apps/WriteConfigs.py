@@ -11,10 +11,14 @@ from   os       import mkdir, chdir
 #----------------------------------------------------------------------------
 def main():
     '''Write configuration files.
-       Create args.configDir directory
-       In this dir create args.E directories (E*)
-       In each E*/ create a *EX_tauY_TpZ.cfg with each .cfg values
-       set for E, tau and the command line parameters.
+       Command line arguments include a list of E and list of tau.
+       A .cfg file is created for each combination of E and tau.
+
+       1) Create args.configDir directory
+       2) In this dir create [args.E] directories (E*)
+       3) In each E*/ create [args.tau] .cfg files as: *EX_tauY_TpZ.cfg
+          where E(X), tau(Y), Tp(Z) are from the [args.E], [args.tau], args.Tp
+          'dataOutCSV', 'plotFile' are also set from the E(X), tau(Y), Tp(Z).
     '''
 
     args = ParseCmdLine()
@@ -30,6 +34,8 @@ def main():
     config['Network']['targetNode'] = args.targetNode
     config['Network']['file']       = args.networkFile
     config['Network']['data']       = args.networkData
+
+    config['Node']['function'] = args.nodeFunction
 
     config['EDM']['Tp'] = str( args.Tp )
 
@@ -51,7 +57,7 @@ def main():
 
     for E in args.E :
         config['EDM']['E'] = str( E )
-        
+
         for tau in args.tau :
             # Write config files for tau*
             # Set config file tau
@@ -221,6 +227,12 @@ def ParseCmdLine():
                         action  = 'store',
                         default = [-1, -2, -3],
                         help    = 'List of tau.')
+
+    parser.add_argument('-DF', '--nodeFunction',
+                        dest    = 'nodeFunction', type = str,
+                        action  = 'store',
+                        default = 'Simplex',
+                        help    = 'nodeFunction')
 
     parser.add_argument('-D', '--DEBUG',
                         dest   = 'DEBUG', # type = bool, 
