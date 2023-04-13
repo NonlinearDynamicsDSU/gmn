@@ -12,8 +12,9 @@ from   gmn.CLI_Parser   import ParseCmdLine
 from   gmn.ConfigParser import ReadConfig
 
 #-------------------------------------------
-def CallGenerate( GMN ):
+def CallGenerate( args, param ):
     '''Wrapper for GMN.Generate() in multiprocessing Pool'''
+    GMN =  gmn.GMN( args, param )
     GMN.Generate()
 
 #----------------------------------------------------------------------------
@@ -42,11 +43,8 @@ def main():
     # Iterable of parameters for each configFile
     params = [ ReadConfig( args, configurationFile = f ) for f in configFiles ]
 
-    # Iterable of GMN objects
-    gmns = [ gmn.GMN( args, param ) for param in params ]
-
     with Pool( processes = args.cores ) as pool:
-        DataOuts = pool.map( CallGenerate, gmns )
+        DataOuts = pool.starmap( CallGenerate, [ ( args, param ) for param in params ] )
 
 #----------------------------------------------------------------------------
 # Provide for cmd line invocation and clean module loading
