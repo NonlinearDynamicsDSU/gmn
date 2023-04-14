@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 # Python distribution modules
-from multiprocessing import Pool
+from multiprocessing import set_start_method, Pool
 from os import listdir, walk
 
 # Community modules
@@ -42,6 +42,10 @@ def main():
 
     # Iterable of parameters for each configFile
     params = [ ReadConfig( args, configurationFile = f ) for f in configFiles ]
+
+    # libgomp deadlocks when called in a forked process
+    # c.f. https://github.com/pytorch/pytorch/issues/17199
+    set_start_method( "spawn" )
 
     with Pool( processes = args.cores ) as pool:
         DataOuts = pool.starmap( CallGenerate, [ ( args, param ) for param in params ] )
