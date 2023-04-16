@@ -17,8 +17,6 @@ except ImportError as err:
 
 try:
     from os import environ # JP Need to query not hardwire
-    environ[ 'OMP_PROC_BIND' ] = 'spread'  # kedm : OpenMP settings
-    environ[ 'OMP_PLACES'    ] = 'threads'
     from kedm import simplex as kedm_simplex
     from kedm import smap    as kedm_smap
 except ImportError as err:

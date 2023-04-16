@@ -2,7 +2,7 @@
 
 # Python distribution modules
 from multiprocessing import set_start_method, Pool
-from os import listdir, walk
+from os import cpu_count, listdir, sched_setaffinity, walk
 
 # Community modules
 
@@ -11,6 +11,7 @@ import gmn
 from   gmn.CLI_Parser   import ParseCmdLine
 from   gmn.ConfigParser import ReadConfig
 
+sched_setaffinity(0, range(cpu_count()))
 #-------------------------------------------
 def CallGenerate( args, param ):
     '''Wrapper for GMN.Generate() in multiprocessing Pool'''
