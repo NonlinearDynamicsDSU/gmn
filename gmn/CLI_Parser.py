@@ -37,6 +37,12 @@ def ParseCmdLine():
                         default = 4,
                         help    = 'Multiprocessing cores.')
 
+    parser.add_argument('-t', '--threads',
+                        dest    = 'threads', type = int,
+                        action  = 'store',
+                        default = 2,
+                        help    = 'OpenMP threads (kedm).')
+
     parser.add_argument('-P', '--Plot',
                         dest    = 'Plot',
                         action  = 'store_true',

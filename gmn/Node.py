@@ -16,9 +16,8 @@ except ImportError as err:
     print( err, "SVR, knn, Linear not available" )
 
 try:
-    from os import environ # JP Need to query not hardwire
-    environ[ 'OMP_PROC_BIND' ] = 'spread'  # kedm : OpenMP settings
-    environ[ 'OMP_PLACES'    ] = 'threads'
+    from os import environ
+    environ[ 'OMP_PROC_BIND' ] = 'false' # Kokkos warning OpenMP
     from kedm import simplex as kedm_simplex
     from kedm import smap    as kedm_smap
 except ImportError as err:

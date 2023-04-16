@@ -1,8 +1,8 @@
 #! /usr/bin/env python3
 
 # Python distribution modules
-from multiprocessing import Pool
-from os import listdir, walk
+from multiprocessing import set_start_method, Pool
+from os import cpu_count, environ, listdir, sched_setaffinity, walk
 
 # Community modules
 
@@ -11,21 +11,47 @@ import gmn
 from   gmn.CLI_Parser   import ParseCmdLine
 from   gmn.ConfigParser import ReadConfig
 
+# Reset core affinity to override BLAS, numpy binding to single core
+sched_setaffinity( 0, range( cpu_count() ) )
+
 #-------------------------------------------
-def CallGenerate( GMN ):
+def CallGenerate( args, param ):
     '''Wrapper for GMN.Generate() in multiprocessing Pool'''
+    GMN = gmn.GMN( args, param )
     GMN.Generate()
 
 #----------------------------------------------------------------------------
 #----------------------------------------------------------------------------
 def main():
     '''GMN application command line interface
-       Runs all config (.cfg) files found in args.configDir (-d).'''
+       Runs all config (.cfg) files found in args.configDir (-d).
+
+       Note : The product of -c --cores and -t --threads should not
+       exceed the cpu_count if using kedm.
+
+       Thanks to Keichi Takahashi
+       ---------------------------------------------------------------------
+       Note : kedm : Kokkos using OpenMP is not compatible with
+       multiprocessing.Pool using forked processes owing to a gcc library
+       (libgomp) block in OpenMP. This requires Pool to use method = 'spawn'.
+       See: https://github.com/pytorch/pytorch/issues/17199
+
+       Note: OpenBLAS, used by pyEDM, kEDM etc., sets the core affinity
+       when loaded and restricts the execution to one core only. When using
+       separate spawned processes in Pool, must set the core affinity.
+       See : https://stackoverflow.com/questions/15639779/
+       ---------------------------------------------------------------------
+    '''
 
     args = ParseCmdLine()
 
     if not args.configDir :
         raise RuntimeError( "No config file directory (-d) specified." )
+
+    # kedm : Kokkos : OpenMP
+    environ[ 'OMP_NUM_THREADS' ] = str( args.threads )
+    # gcc libgomp blocks multiprocess.Pool with default forked processes
+    set_start_method( "spawn" )
 
     # List of config files in configDir
     configFiles = []
@@ -42,11 +68,9 @@ def main():
     # Iterable of parameters for each configFile
     params = [ ReadConfig( args, configurationFile = f ) for f in configFiles ]
 
-    # Iterable of GMN objects
-    gmns = [ gmn.GMN( args, param ) for param in params ]
-
     with Pool( processes = args.cores ) as pool:
-        DataOuts = pool.map( CallGenerate, gmns )
+        pool.starmap( CallGenerate,
+                      [ ( args, param ) for param in params ] )
 
 #----------------------------------------------------------------------------
 # Provide for cmd line invocation and clean module loading
