@@ -1,6 +1,8 @@
 site_name: GMN
 theme: 
-    name: readthedocs
+  name: readthedocs
+  features:
+    - navigation.footer
 extra_css: [extra.css]
 
 plugins:
@@ -19,3 +21,5 @@ nav:
     - Functions : functions.md
     - Parameters : parameters.md
 - EDM : edm.md
+
+copyright: Copyright &copy; 2021 - 2023 Gerald Pao
