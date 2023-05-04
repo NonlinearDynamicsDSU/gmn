@@ -3,6 +3,7 @@
 # Python distribution modules
 from multiprocessing import set_start_method, Pool
 from os import cpu_count, environ, listdir, sched_setaffinity, walk
+from time import time
 
 # Community modules
 
@@ -43,7 +44,8 @@ def main():
        ---------------------------------------------------------------------
     '''
 
-    args = ParseCmdLine()
+    startTime = time()
+    args      = ParseCmdLine()
 
     if not args.configDir :
         raise RuntimeError( "No config file directory (-d) specified." )
@@ -71,6 +73,8 @@ def main():
     with Pool( processes = args.cores ) as pool:
         pool.starmap( CallGenerate,
                       [ ( args, param ) for param in params ] )
+
+    print( 'Elapsed time', str( round( time() - startTime, 4 ) ) )
 
 #----------------------------------------------------------------------------
 # Provide for cmd line invocation and clean module loading

@@ -18,7 +18,8 @@ def main():
        2) In this dir create [args.E] directories (E*)
        3) In each E*/ create [args.tau] .cfg files as: *EX_tauY_TpZ.cfg
           where E(X), tau(Y), Tp(Z) are from the [args.E], [args.tau], args.Tp
-          'dataOutCSV', 'plotFile' are also set from the E(X), tau(Y), Tp(Z).
+          if args.outPath is not empty:
+            'dataOutCSV', 'plotFile' are set from the E(X), tau(Y), Tp(Z)
     '''
 
     args = ParseCmdLine()
@@ -70,11 +71,13 @@ def main():
             baseStr = baseStr.replace( 'TpZ',   'Tp'  + str(args.Tp), 1 )
 
             configFile = baseStr + '.cfg'
-            csvFile    = baseStr + '.csv'
-            pngFile    = baseStr + '.png'
 
-            config['GMN']['dataOutCSV'] = csvFile
-            config['GMN']['plotFile']   = pngFile
+            if len( args.outPath ) :
+                config['GMN']['dataOutCSV'] = baseStr + '.csv'
+                config['GMN']['plotFile']   = baseStr + '.png'
+            else :
+                config['GMN']['dataOutCSV'] = ''
+                config['GMN']['plotFile']   = ''
 
             configDir = './E' + str( E )
 
