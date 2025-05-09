@@ -372,7 +372,6 @@ def StarMapFunc( crossColumns, args, data ):
                      target          = target,
                      embedded        = False,
                      verbose         = False,
-                     const_pred      = False,
                      showPlot        = False )
 
         CM_XY = ComputeError( S['Observations'], S['Predictions'] )['rho']
@@ -390,7 +389,6 @@ def StarMapFunc( crossColumns, args, data ):
                      target          = column,
                      embedded        = False,
                      verbose         = False,
-                     const_pred      = False,
                      showPlot        = False )
 
         CM_YX = ComputeError( S['Observations'], S['Predictions'] )['rho']
