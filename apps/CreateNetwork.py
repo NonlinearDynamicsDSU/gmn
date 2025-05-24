@@ -145,6 +145,9 @@ def ReadMatrix( args ):
     # Read interaction matrix
     interactMatrix = pd.read_csv( args.interactionMatrix, index_col = 0 )
 
+    if len( args.excludeColumns ) :
+        interactMatrix.drop( columns = args.excludeColumns, inplace = True )
+
     if args.verbose :
         print( "Interaction Matrix shape :", end = "  " )
         print( interactMatrix.shape )
@@ -194,6 +197,11 @@ def ParseCmdLine():
                         dest   = 'numDrivers', type = int, 
                         action = 'store',  default = 4,
                         help   = 'Number of driver timeseries.')
+
+    parser.add_argument('-x', '--excludeColumns', nargs = '*',
+                        dest   = 'excludeColumns', type = str, 
+                        action = 'store',  default = [],
+                        help   = 'Columns to exclude.')
 
     parser.add_argument('-P', '--plotNetwork',
                         dest   = 'plotNetwork', 
