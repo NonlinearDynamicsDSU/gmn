@@ -1,11 +1,11 @@
 #! /usr/bin/env python3
 
-# System modules
+# Distribution modules
 import time, argparse, pickle, json
 
-# Package modules
-import pandas as pd
+# Community modules
 import matplotlib.pyplot as plt
+from   pandas   import read_csv, read_feather
 from   networkx import DiGraph, is_directed_acyclic_graph, draw, shell_layout
 from   networkx import node_link_data, topological_sort
 
@@ -142,8 +142,15 @@ def CreateNetwork( args, interactionMatrix ):
 def ReadMatrix( args ):
     '''Read data file of interaction matrix into pandas DataFrame.'''
 
-    # Read interaction matrix
-    interactMatrix = pd.read_csv( args.interactionMatrix, index_col = 0 )
+    # Read interaction matrix into pandas DataFrame
+    if 'csv' in args.interactionMatrix[-4:] :
+        interactMatrix = read_csv( args.interactionMatrix, index_col = 0 )
+    elif 'feather' in args.interactionMatrix[-9:] :
+        interactMatrix = read_feather( args.interactionMatrix )
+    else :
+        msg = f'Interaction matrix {args.interactionMatrix} ' +\
+               'must be csv or feather'
+        raise( RuntimeError( msg ) )
 
     if len( args.excludeColumns ) :
         interactMatrix.drop( columns = args.excludeColumns, inplace = True )
@@ -164,7 +171,7 @@ def ParseCmdLine():
                         dest    = 'interactionMatrix', type = str, 
                         action  = 'store',
                         default = './ABCD_rhoDiff.csv',
-                        help    = 'Interaction matrix file name.')
+                        help    = 'Interaction matrix: .csv or .feather.')
 
     parser.add_argument('-t', '--targetCols', nargs = '+',
                         dest    = 'targetCols', type = str, 
