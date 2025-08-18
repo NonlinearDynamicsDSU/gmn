@@ -5,9 +5,11 @@ import time, argparse, pickle, json
 
 # Community modules
 import matplotlib.pyplot as plt
-from   pandas   import read_csv, read_feather
 from   networkx import DiGraph, is_directed_acyclic_graph, draw, shell_layout
 from   networkx import node_link_data, topological_sort
+
+# Local modules
+from gmn.Auxiliary import ReadDataFrame
 
 #----------------------------------------------------------------------------
 def main():
@@ -143,14 +145,7 @@ def ReadMatrix( args ):
     '''Read data file of interaction matrix into pandas DataFrame.'''
 
     # Read interaction matrix into pandas DataFrame
-    if 'csv' in args.interactionMatrix[-4:] :
-        interactMatrix = read_csv( args.interactionMatrix, index_col = 0 )
-    elif 'feather' in args.interactionMatrix[-9:] :
-        interactMatrix = read_feather( args.interactionMatrix )
-    else :
-        msg = f'Interaction matrix {args.interactionMatrix} ' +\
-               'must be csv or feather'
-        raise( RuntimeError( msg ) )
+    interactMatrix = ReadDataFrame( args.interactionMatrix, index_col = 0 )
 
     if len( args.excludeColumns ) :
         interactMatrix.drop( columns = args.excludeColumns, inplace = True )

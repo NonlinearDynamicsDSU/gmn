@@ -4,10 +4,10 @@ import pickle
 
 # Community modules
 from networkx import topological_sort
-from pandas   import DataFrame, read_csv
 
 # Local modules 
-from gmn.Node import Node
+from gmn.Node      import Node
+from gmn.Auxiliary import ReadDataFrame
 
 #---------------------------------------------------------------
 #---------------------------------------------------------------
@@ -69,7 +69,7 @@ class Network:
 
         # Load Network data as Pandas DataFrame
         if parameters.networkData and not parameters.networkData.isspace() :
-            self.data = read_csv( parameters.networkData )
+            self.data = ReadDataFrame( parameters.networkData )
 
             if self.data.shape[0] <= parameters.predictionStart - 1:
                 errMsg = "Network.__init__(): Nummber of data rows " +\

@@ -1,16 +1,20 @@
 #! /usr/bin/env python3
 
+# Python distribution modules
 import time, argparse, pickle
 
+# Community modules
 import matplotlib.pyplot as plt
-from   pandas import read_csv, DataFrame
+
+# Local modules 
+from gmn.Auxiliary import ReadDataFrame
 
 #----------------------------------------------------------------------------
 # Main module
 #----------------------------------------------------------------------------
 def main():
     '''Plot result of InteractionMatrix.py.
-       Input is a pickled dictionary of pandas dataFrames or a csv
+       Input is a pickled dictionary of pandas DataFrames or single DataFrame
 
        args.plot selects the dataFrame to plot
 
@@ -23,9 +27,10 @@ def main():
     if args.verbose: print( args )
 
     #-----------------------------------------
-    if args.CSV :
-        df = read_csv( args.file, index_col = 0 )
+    if args.DataFrame :
+        df = ReadDataFrame( args.file, index_col = 0 )
     else:
+        # pickled dictionary of pandas DataFrames
         with open( args.file, 'rb') as f:
             D = pickle.load( f )
 
@@ -80,13 +85,14 @@ def ParseCmdLine():
     parser = argparse.ArgumentParser( description = 'Plot Matrix' )
     
     parser.add_argument('-f', '--file',
-                        dest   = 'file',   type = str,  required = True,
-                        action = 'store',  default = None,
-                        help = 'Pickle of dict or csv from InteractionMatrix.py')
+                        dest   = 'file',  type = str,  required = True,
+                        action = 'store', default = None,
+                        help = 'Pickle of dict of DataFrames from ' +\
+                        'InteractionMatrix.py or single DataFrame matrix.')
 
     parser.add_argument('-p', '--plot',
-                        dest   = 'plot', type = str,
-                        action = 'store',  default = None,
+                        dest   = 'plot',  type = str,
+                        action = 'store', default = None,
                         help = 'Plot (SMap CCM CrossMap MutualInfo NonLinear ' +\
                                'Correlation rhoDiff CMI)')
 
@@ -97,12 +103,12 @@ def ParseCmdLine():
 
     parser.add_argument('-t', '--title',
                         dest   = 'title', type = str,
-                        action = 'store',  default = None,
+                        action = 'store', default = None,
                         help = 'Figure title.')
 
     parser.add_argument('-s', '--size',
-                        dest   = 'size', type = int, nargs = 2,
-                        action = 'store',  default = [5,5],
+                        dest   = 'size',  type = int, nargs = 2,
+                        action = 'store', default = [5,5],
                         help = 'Figure size x, y')
 
     parser.add_argument('-v', '--verbose',
@@ -113,10 +119,13 @@ def ParseCmdLine():
     args = parser.parse_args()
 
     if args.file :
-        if args.file.lower().endswith( '.csv' ) :
-            args.CSV = True
+        if args.file.lower().endswith( '.csv' )     or \
+           args.file.lower().endswith( '.feather' ) or \
+           args.file.lower().endswith( '.gz' )      or \
+           args.file.lower().endswith( '.xz' ) :
+            args.DataFrame = True
         else :
-            args.CSV = False
+            args.DataFrame = False
 
     return args
 

@@ -4,8 +4,7 @@ from copy    import copy
 from pathlib import Path
 
 # Community modules
-from pandas import read_csv
-from pyEDM  import Simplex, SMap, Embed
+from pyEDM import Simplex, SMap, Embed
 
 try:
     from math                 import dist
@@ -13,7 +12,7 @@ try:
     from sklearn.svm          import SVR
     from sklearn.linear_model import LinearRegression
 except ImportError as err:
-    print( err, "SVR, knn, Linear not available" )
+    print( err, "Node: SVR, knn, Linear not available" )
 
 try:
     from os import environ
@@ -21,11 +20,12 @@ try:
     from kedm import simplex as kedm_simplex
     from kedm import smap    as kedm_smap
 except ImportError as err:
-    print( err, "kedm not available" )
+    print( err, "Node: kedm not loaded" )
 
 # Local modules 
 from gmn.ConfigParser import ReadConfig
 from gmn.Common       import *
+from gmn.Auxiliary    import ReadDataFrame
 
 #-----------------------------------------------------------
 #-----------------------------------------------------------
@@ -93,7 +93,8 @@ class Node:
 
             if self.Parameters.nodeData :
                 # Load node data as Pandas DataFrame
-                data = read_csv( self.Parameters.nodeData )# JP: All data needed?
+                # JP: All data needed?
+                data = ReadDataFrame( self.Parameters.nodeData )
 
                 # Subset to "data library"
                 # Network: dataLib_i = range( predictionStart )

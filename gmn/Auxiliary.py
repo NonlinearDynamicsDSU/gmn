@@ -9,7 +9,28 @@ Functions
 from datetime import date, datetime, time
 
 # Community modules
-from pandas import Series
+from pandas import DataFrame, Series, read_csv, read_feather, read_pickle
+
+#-----------------------------------------------------------
+#-----------------------------------------------------------
+def ReadDataFrame( file, columnsList = [], usecols = None, 
+                   index_col = None, verbose = False ) :
+    '''Read pandas DataFrame from file.
+       File extension can be .csv .feather .gz .xz
+    '''
+
+    if '.csv' in file[-4:] :
+        data = read_csv( file, index_col = index_col, usecols = usecols )
+    elif '.feather' in file[-8:] :
+        data = read_feather( file )
+    elif '.gz' in file[-3:] or '.xz' in file[-3:]:
+        data = read_pickle( file )
+    else :
+        errMsg = "ReadDataFrame(): file " + file +\
+            " must be .csv, .feather, .gz, .xz pandas DataFrame"
+        raise RuntimeError( errMsg )
+
+    return data
 
 #-----------------------------------------------------------
 #-----------------------------------------------------------

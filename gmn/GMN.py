@@ -113,6 +113,10 @@ class GMN:
             self.lastDataOut = NodeOutput
             self.DataOut     = concat( [ self.DataOut, NodeOutput ] )
 
+        # if factor != 1 apply
+        if node.Parameters.factor != 1 :
+            self.DataOut = self.DataOut.mul( node.Parameters.factor )
+
         # Insert time column to DataOut
         # PRESUMED Network data column 1 is time
         newTime = TimeExtension(

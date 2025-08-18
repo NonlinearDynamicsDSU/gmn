@@ -1,19 +1,25 @@
 #! /usr/bin/env python3
 
-import time, argparse, pickle
-from   math            import nan
-from   itertools       import combinations_with_replacement, repeat
-from   multiprocessing import Pool
+# Python distribution modules
+import argparse, pickle
+from   datetime           import datetime
+from   math               import nan
+from   itertools          import combinations_with_replacement, repeat
+from   concurrent.futures import ProcessPoolExecutor
 
+# Community modules
 import matplotlib.pyplot as plt
 from   numpy  import zeros, full, corrcoef, amax, min, max, abs, maximum
 from   numpy  import linspace, quantile
-from   pandas import read_csv, DataFrame
+from   pandas import DataFrame
 
 from   pyEDM import CCM, Simplex, ComputeError, PredictNonlinear
 from   sklearn.linear_model      import LinearRegression
 from   sklearn.feature_selection import mutual_info_regression as MI
 from   statsmodels.distributions.empirical_distribution import ECDF
+
+# Local modules 
+from gmn.Auxiliary import ReadDataFrame
 
 #----------------------------------------------------------------------------
 # Main module
@@ -98,17 +104,17 @@ def main():
        Note: EDM presumes 1st data column is time.
     '''
 
-    startTime = time.time()
+    startTime = datetime.now()
 
     args = ParseCmdLine()
 
     if args.verbose: print( args )
 
-    # Read data from args.dataFile .csv format
+    # Read data from args.dataFile
     if len( args.dataColumns ) :
-        data = read_csv( args.dataFile, usecols = args.dataColumns )
+        data = ReadDataFrame( args.dataFile, usecols = args.dataColumns )
     else:
-        data = read_csv( args.dataFile )
+        data = ReadDataFrame( args.dataFile )
 
     args.numCols = N = len( data.columns )
     args.numRows = data.shape[0]
@@ -122,22 +128,30 @@ def main():
     crossColumns = \
         list( combinations_with_replacement( range( 1, args.numCols ), 2 ) )
 
-    # Pack crossColumns into iterable with copies of args, data
-    # Each iterable item will be: (col1, col2), args, data
-    poolArgs = zip( crossColumns, repeat( args ), repeat( data ) )
+    N_        = len( crossColumns )
+    chunksize = maximum( 1, int( N_ / (2 * args.cores) ) )
 
-    if args.verbose: print( "Starting pool.starmap" )
+    if args.verbose:
+        print( f'{datetime.now()} Starting ProcessPoolExecutor: ' +\
+               f'chunksize {chunksize}' )
 
-    # Use pool.starmap to distribute among cores
-    pool = Pool( processes = args.cores )
+    # ProcessPoolExecutor has no starmap(). Pass argument lists directly.
+    with ProcessPoolExecutor( max_workers = args.cores ) as exe :
+        interact_ = exe.map( InteractFunc,
+                             crossColumns,
+                             repeat( data, N_ ),
+                             repeat( args, N_ ),
+                             timeout   = None,
+                             chunksize = chunksize )
 
-    # starmap: elements of the iterable argument are iterables
-    #          that are unpacked as arguments
-    CMList = pool.starmap( StarMapFunc, poolArgs )
+    # interact_ is a generator of dictionaries from InteractFunc
+    interactD_ = [ _ for _ in interact_ ]
 
-    if args.verbose: print( "Result has ", str( len( CMList ) ), " items." )
+    if args.verbose:
+        print( f'{datetime.now()} Finished ProcessPoolExecutor' )
+        print( "Result has ", str( len( interactD_ ) ), " items." )
 
-    # Create matrices to hold results from StarMapFunc()
+    # Create matrices to hold results from InteractFunc()
     CCM_mat = CM = CC = IXY = NL = rhoDiff = CMI = SMap = None
     if args.CCM      : CCM_mat = full ( ( N - 1, N - 1 ), nan )
     if args.CrossMap : CM      = full ( ( N - 1, N - 1 ), nan )
@@ -150,8 +164,8 @@ def main():
     col1Names = [""] * ( N - 1 )
     col2Names = [""] * ( N - 1 )
 
-    # Unpack the CMList of dictionaries into matrices
-    for D in CMList :
+    # Unpack the interactD_ list of dictionaries into matrices
+    for D in interactD_ :
         if D is None :
             continue
 
@@ -253,8 +267,8 @@ def main():
                     fileName = args.outCSVFile + '_' + key + '.csv'
                     CMI_df.round( args.precision ).to_csv( fileName )
 
-    elapsedTime = time.time() - startTime
-    print( "Normal Exit elapsed time:", round( elapsedTime, 4 ) )
+    elapsedTime = datetime.now() - startTime
+    print( "Normal Exit elapsed time: ", elapsedTime )
 
     #-----------------------------------------
     if args.verbose :
@@ -335,7 +349,7 @@ def main():
 
 #----------------------------------------------------------------------------
 #----------------------------------------------------------------------------
-def StarMapFunc( crossColumns, args, data ):
+def InteractFunc( crossColumns, data, args ):
     '''Simplex cross map, CCM, Uncertainty coefficient, Pearsons rho,
        Mutual Information Non Linearity & Pao's rho diff on one
        pair of columns of the input data.
@@ -557,12 +571,12 @@ def StarMapFunc( crossColumns, args, data ):
 def PredictNL( column, target, args, data ):
     '''SMap PredictNonlinear'''
 
-    if args.theta :
+    if len( args.theta ) :
         # theta specified
-        numThreads = min( [ len( args.theta ), args.cores ] ) # numpy min
+        numProcess = min( [ len( args.theta ), args.cores ] ) # numpy min
     else :
-        # theta not specified, cppEDM default has 15 values
-        numThreads = min( [ 15, args.cores ] )
+        # theta not specified, pyEDM default has 15 values
+        numProcess = min( [ 15, args.cores ] )
 
     #-------------------------------------------------------
     #    DataFrame with columns theta and rho. 
@@ -579,7 +593,7 @@ def PredictNL( column, target, args, data ):
                            target          = target,
                            embedded        = False,
                            verbose         = False,
-                           numThreads      = numThreads,
+                           numProcess      = numProcess,
                            showPlot        = False )
 
     rho = DF[ 'rho' ]
