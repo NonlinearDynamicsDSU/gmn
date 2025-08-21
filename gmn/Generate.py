@@ -1,6 +1,4 @@
 
-# Python distribution modules
-
 # Community modules
 from pandas import concat
 from numpy  import arange

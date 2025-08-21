@@ -33,8 +33,9 @@ class Network:
         self.Graph             = None
         self.NetworkMap        = None
         self.TopologicalSorted = None
-        self.data              = None  # All input data
-        self.dataLib_i         = None  # indices to subset data "library"
+        self.data              = None # All input data subset to dataColumns
+        self.dataColumns       = None # time + TopologicalSorted nodes
+        self.dataLib_i         = None # indices to subset data "library"
         self.timeColumnName    = None
 
         # Read network graph : See CreateNetwork.py
@@ -91,6 +92,10 @@ class Network:
                 print( self.data.iloc[ self.dataLib_i ].tail(2) )
 
         self.timeColumnName = self.data.columns[0] # PRESUME column 1 is time
+
+        # Subset self.data to network nodes
+        self.dataColumns = [self.timeColumnName] + self.TopologicalSorted
+        self.data = self.data.loc[:, self.dataColumns]
 
         # Instantiate Node objects. Store in self.Graph.nodes[ nodeName ]
         #   networkx.org/documentation/stable/reference/classes/digraph.html#

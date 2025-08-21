@@ -105,7 +105,8 @@ def Plot( self ):
             axs[0].plot( timeData, dataCol,        label = col + ' Observed' )
             axs[1].plot( timeLib,  dataLib[ col ], label = col + ' Library'  )
             axs[1].plot( timeGMN,  gmnDataCol,
-                         label = col + ' Generated' + " [" + str( rho ) + "]" )
+                         label = col + ' ' + parameters.mode + \
+                         " [" + str( rho ) + "]" )
             axs[0].legend( loc = 'upper left', # frameon = False,
                            borderpad = 0.2, borderaxespad = 0.2 )
             axs[1].legend( loc = 'upper left', # frameon = False,

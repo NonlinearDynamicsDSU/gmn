@@ -25,7 +25,7 @@ class GMN:
                   outputFile  = None,  cores      = 4,
                   plot        = False, statePlot  = False,
                   plotColumns = [],    plotFile   = None,
-                  debug       = False ):
+                  figureSize  = [8,8], debug      = False ):
 
         '''Constructor
 
@@ -49,6 +49,7 @@ class GMN:
             args.StatePlot   = statePlot
             args.plotColumns = plotColumns
             args.PlotFile    = plotFile
+            args.FigureSize  = figureSize
             args.DEBUG       = debug
 
         if args.configDir is None and args.configFile is None:
@@ -71,7 +72,7 @@ class GMN:
         self.Network = Network( args, parameters )
 
         # Allocate DataFrame for output data.
-        self.DataOut = DataFrame( columns = self.Network.data.columns,
+        self.DataOut = DataFrame( columns = self.Network.dataColumns,
                                   dtype = float )
 
     #-------------------------------------------------------------------
@@ -94,7 +95,7 @@ class GMN:
                        "=====================================" )
 
             # Allocate DataFrame for node outputs.
-            NodeOutput = DataFrame( columns = self.Network.data.columns,
+            NodeOutput = DataFrame( columns = self.Network.dataColumns,
                                     dtype = float )
 
             # Network Loop
@@ -114,13 +115,13 @@ class GMN:
             self.DataOut     = concat( [ self.DataOut, NodeOutput ] )
 
         # if factor != 1 apply
-        if node.Parameters.factor != 1 :
+        if self.Parameters.factor != 1 :
             self.DataOut = self.DataOut.mul( node.Parameters.factor )
 
         # Insert time column to DataOut
         # PRESUMED Network data column 1 is time
         newTime = TimeExtension(
-            Network.data.iloc[ Network.dataLib_i][ Network.timeColumnName ],
+            Network.data.iloc[ Network.dataLib_i ][ Network.timeColumnName ],
             self.Parameters.predictionLength )
 
         self.DataOut[ Network.timeColumnName ] = newTime
