@@ -1,7 +1,8 @@
 #! /usr/bin/env python3
 
 # Distribution modules
-import time, argparse, pickle, json
+import argparse, pickle, json
+from   datetime import datetime
 
 # Community modules
 import matplotlib.pyplot as plt
@@ -20,7 +21,7 @@ def main():
     along the row are potential drivers. 
 
     CreateNetwork() writes binary networkx.DiGraph() object to args.outputFile,
-    or a .json file if args.json is True.
+    or a .json file if args.outputFile ends with ".json"
     '''
     args = ParseCmdLine()
 
@@ -37,7 +38,10 @@ def CreateNetwork( args, interactionMatrix ):
     Write binary networkx.DiGraph() & dict objects to args.outputFile.
     Return { Graph : network_graph, Map : network_dict }.'''
 
-    startTime = time.time()
+    start = datetime.now()
+
+    if args.verbose :
+        print( f"CreateNetwork() {datetime.now()}", flush = True )
 
     network_graph = DiGraph() # for assessing graph properties
     network_nodes = []        # nodes already added to network
@@ -101,22 +105,27 @@ def CreateNetwork( args, interactionMatrix ):
         for driver_id in network_dict[ node_id ]:
             explore_queue.append( driver_id )
 
-    print( len( network_graph ), 'nodes.' )
+    print( len( network_graph ), 'nodes', flush = True )
     if args.cmi :
         print( 'NOTE: --cmi : iMatrix sorted ascending, threshold >=' )
 
-    if args.verbose :
-        print( "Network Dictionary { Node : ( [Drivers] ), ... }" )
-        print( network_dict )
-        print( "Network Cycle { Node : [], ... }" )
-        print( network_cycle )
+    if args.debug :
+        print( "Network Dictionary { Node : ( [Drivers] ), ... }", flush = True )
+        print( network_dict, flush = True )
+        print( "Network Cycle { Node : [], ... }", flush = True )
+        print( network_cycle, flush = True )
 
     Network = { 'Graph' : network_graph, 'Map' : network_dict }
 
+    print( f'Elapsed time: {datetime.now() - start}', flush = True )
+
     #----------------------------------------------------------
     if args.outputFile :
-        if args.json:
-            obj = node_link_data( network_graph )
+        if args.verbose :
+            print( f'Writing {args.outputFile} {datetime.now()}', flush = True )
+
+        if ".json" in args.outputFile[-5:] :
+            obj = node_link_data( network_graph, edges = "edges" )
             obj[ 'topological_ordering' ] =\
                 list( topological_sort( network_graph ) )
             obj[ 'target_cols' ] = args.targetCols
@@ -127,8 +136,8 @@ def CreateNetwork( args, interactionMatrix ):
             with open( args.outputFile, 'wb' ) as fdOut:
                 pickle.dump( Network, fdOut )
 
-    elapsedTime = time.time() - startTime
-    print( "Elapsed time:", round( elapsedTime, 4 ) )
+        if args.verbose :
+            print( f'Writing complete {datetime.now()}', flush = True )
 
     #----------------------------------------------------------
     if args.plotNetwork :
@@ -144,17 +153,22 @@ def CreateNetwork( args, interactionMatrix ):
 def ReadMatrix( args ):
     '''Read data file of interaction matrix into pandas DataFrame.'''
 
+    if args.verbose :
+        print( f"Read Interaction Matrix ... {datetime.now()}", flush = True )
+
     # Read interaction matrix into pandas DataFrame
     interactMatrix = ReadDataFrame( args.interactionMatrix, index_col = 0 )
 
     if len( args.excludeColumns ) :
+        interactMatrix.drop( index   = args.excludeColumns, inplace = True )
         interactMatrix.drop( columns = args.excludeColumns, inplace = True )
 
     if args.verbose :
-        print( "Interaction Matrix shape :", end = "  " )
-        print( interactMatrix.shape )
-        print( "Interaction Matrix:" )
-        print( interactMatrix.round( 4 ) )
+        print( "Interaction Matrix shape :", end = "  ", flush = True )
+        print( interactMatrix.shape, flush = True )
+    if args.debug :
+        print( "Interaction Matrix:", flush = True )
+        print( interactMatrix.round( 4 ), flush = True )
 
     return interactMatrix
 
@@ -184,11 +198,6 @@ def ParseCmdLine():
                         dest    = 'outputFile', type = str, 
                         action  = 'store', default = None,
                         help    = 'Output file name.')
-
-    parser.add_argument('-j', '--json',
-                        dest   = 'json',
-                        action = 'store_true',  default = False,
-                        help   = 'Write output as a JSON file')
 
     parser.add_argument('-T', '--threshold',
                         dest   = 'threshold', type = float,
@@ -220,10 +229,15 @@ def ParseCmdLine():
                         action = 'store_true',  default = False,
                         help   = 'Verbose output.')
 
+    parser.add_argument('-g', '--debug',
+                        dest   = 'debug', 
+                        action = 'store_true',  default = False,
+                        help   = 'debug output.')
+
     args = parser.parse_args()
 
     if args.verbose :
-        print( args )
+        print( args, flush = True )
 
     return args
 
