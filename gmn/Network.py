@@ -45,7 +45,7 @@ class Network:
             self.Graph       = NetworkGraphDict[ 'Graph' ]
             self.NetworkMap  = NetworkGraphDict[ 'Map'   ] # Not used
 
-            if args.DEBUG_ALL :
+            if args.DEBUG :
                 print( '-> Network.__init__()' )
                 self.Parameters.Print()
 
@@ -70,7 +70,8 @@ class Network:
 
         # Load Network data as Pandas DataFrame
         if parameters.networkData and not parameters.networkData.isspace() :
-            self.data = ReadDataFrame( parameters.networkData )
+            self.data = ReadDataFrame( parameters.networkData,
+                                       verbose = args.verbose )
 
             if self.data.shape[0] <= parameters.predictionStart - 1:
                 errMsg = "Network.__init__(): Nummber of data rows " +\
@@ -86,7 +87,7 @@ class Network:
                 # Forecast mode : all data since lib & pred are specified
                 self.dataLib_i = range( self.data.shape[0] )
 
-            if args.DEBUG or args.DEBUG_ALL :
+            if args.DEBUG :
                 print( "Network.__init__() Loaded",
                        parameters.networkData, " shape :", str(self.data.shape) )
                 print( self.data.iloc[ self.dataLib_i ].tail(2) )

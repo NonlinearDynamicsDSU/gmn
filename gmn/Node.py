@@ -66,7 +66,7 @@ class Node:
         self.data         = None  # input data (copy or read) + generated
         self.libEnd_i     = None  # EDM library end: Constant @ predictionStart
 
-        if args.DEBUG_ALL :
+        if args.DEBUG :
             print( '-> Node.__init__() : ', nodeName )
 
         # Set nodeParameters = True if node config file found
@@ -84,7 +84,7 @@ class Node:
             if str( nodeFile ) in query :
                 nodeParameters = True
 
-                if args.DEBUG_ALL :
+                if args.DEBUG :
                     print( str( nodeFile ) + " Found in ", query )
 
         if nodeParameters :
@@ -94,13 +94,14 @@ class Node:
             if self.Parameters.nodeData :
                 # Load node data as Pandas DataFrame
                 # JP: All data needed?
-                data = ReadDataFrame( self.Parameters.nodeData )
+                data = ReadDataFrame( self.Parameters.nodeData,
+                                      verbose = args.verbose )
 
                 # Subset to "data library"
                 # Network: dataLib_i = range( predictionStart )
                 self.data = data.iloc[ self.Network.dataLib_i ]
 
-                if args.DEBUG_ALL :
+                if args.DEBUG :
                     print( "Node.__init__() Loaded", self.Parameters.nodeData,
                            " shape :", str( self.data.shape ) )
                     print( self.data.tail(2) )
@@ -178,7 +179,7 @@ class Node:
             raise RuntimeError( "Node(): " + nodeName +\
                                 " Invalid node function: " + nodeFunction )
 
-        if args.DEBUG_ALL :
+        if args.DEBUG :
             print( 'columns:', self.Parameters.columns )
             print( 'target:',  self.Parameters.target  )
             print( str( self.FunctionType ), str( self.Function ) ) 

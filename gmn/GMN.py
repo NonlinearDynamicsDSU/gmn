@@ -1,5 +1,6 @@
 
 # Python distribution modules
+from datetime import datetime
 
 # Community modules
 from pandas import DataFrame, concat
@@ -23,9 +24,9 @@ class GMN:
     def __init__( self, args  = None,  parameters = None,
                   configFile  = None,  configDir  = None,
                   outputFile  = None,  cores      = 4,
-                  plot        = False, statePlot  = False,
+                  plot        = False, plotType   = 'state',
                   plotColumns = [],    plotFile   = None,
-                  figureSize  = [8,8], debug      = False ):
+                  figureSize  = [8,8], verbose    = False, debug = False ):
 
         '''Constructor
 
@@ -46,10 +47,11 @@ class GMN:
             args.outputFile  = outputFile
             args.cores       = cores
             args.Plot        = plot
-            args.StatePlot   = statePlot
+            args.plotType    = plotType
             args.plotColumns = plotColumns
             args.PlotFile    = plotFile
             args.FigureSize  = figureSize
+            args.verbose     = verbose
             args.DEBUG       = debug
 
         if args.configDir is None and args.configFile is None:
@@ -64,7 +66,7 @@ class GMN:
         self.DataOut     = None
         self.lastDataOut = None
 
-        if args.DEBUG or args.DEBUG_ALL :
+        if args.DEBUG :
             import faulthandler
             faulthandler.enable()
 
@@ -81,8 +83,9 @@ class GMN:
            calling the Generate() method of each Network Node. 
         '''
 
-        if self.args.DEBUG or self.args.DEBUG_ALL :
-            print( '-> GMN:Generate()' )
+        if self.args.verbose or self.args.DEBUG :
+            start = datetime.now()
+            print( f'-> GMN:Generate() {start}' )
 
         # Local References for convenience and readability
         Network = self.Network
@@ -90,7 +93,7 @@ class GMN:
 
         # Time Loop
         for t_i in range( self.Parameters.predictionLength ):
-            if self.args.DEBUG_ALL :
+            if self.args.DEBUG :
                 print( "===================== GMN Time:", t_i,
                        "=====================================" )
 
@@ -102,7 +105,7 @@ class GMN:
             for nodeName in Network.TopologicalSorted :
                 node = Graph.nodes[ nodeName ]['Node']
 
-                if self.args.DEBUG_ALL :
+                if self.args.DEBUG :
                     print( "GMN:Generate Network Loop:", nodeName )
                     print( 'columns:', node.Parameters.columns, ':',
                            'target',   node.Parameters.target )
@@ -129,6 +132,10 @@ class GMN:
         # Reset DataFrame row labels to default 0-offset integers
         self.DataOut.reset_index( drop = True, inplace = True )
 
+        if self.args.verbose or self.args.DEBUG :
+            end = datetime.now()
+            print( f'<- GMN:Generate() {end}  :  {end-start}' )
+
         self.Output()
 
     #-------------------------------------------------------------------
@@ -137,8 +144,9 @@ class GMN:
            Network Node. It is presumed that lib & pred are specified.
         '''
 
-        if self.args.DEBUG or self.args.DEBUG_ALL :
-            print( '-> GMN:Forecast()' )
+        if self.args.verbose or self.args.DEBUG :
+            start = datetime.now()
+            print( f'-> GMN:Forecast() {start}' )
 
         # Local References for convenience and readability
         Network = self.Network
@@ -148,7 +156,7 @@ class GMN:
         for nodeName in Network.TopologicalSorted :
             node = Graph.nodes[ nodeName ]['Node']
 
-            if self.args.DEBUG_ALL :
+            if self.args.DEBUG :
                 print( "GMN:Forecast Network Loop:", nodeName )
                 print( 'columns:', node.Parameters.columns, ':',
                        'target',   node.Parameters.target )
@@ -163,26 +171,40 @@ class GMN:
         # Reset DataFrame row labels to default 0-offset integers
         self.DataOut.reset_index( drop = True, inplace = True )
 
+        if self.args.verbose or self.args.DEBUG :
+            end = datetime.now()
+            print( f'<- GMN:Forecast() {end}  :  {end-start}' )
+
         self.Output()
 
     #-------------------------------------------------------------------
     def Output( self ):
-        '''Write DataOut CSV file(s). Plot'''
+        '''Write DataOut file(s). Plot'''
 
-        # Write DataOut CSV file(s)
+        fmt = "%." + str( self.args.round ) + "f"
+        
+        # Write DataOut file(s)
         if self.args.outputFile:
-            fmt = "%." + str( self.args.round ) + "f"
-            self.DataOut.to_csv( self.args.outputFile,
-                                 float_format = fmt, index = False )
+            if '.csv' in self.args.outputFile[-4:] :
+                self.DataOut.to_csv( self.args.outputFile,
+                                     float_format = fmt, index = False )
+            elif '.feather' in self.args.outputFile[-8:] :
+                self.DataOut.to_feather( self.args.outputFile )
+            else :
+                print( 'GMN.Output(): Unrecognized output file format' )
 
-        if len( self.Parameters.dataOutCSV ) and \
-           not self.Parameters.dataOutCSV.isspace():
-            fmt = "%." + str( self.args.round ) + "f"
-            outFile = self.Parameters.outPath + '/' + self.Parameters.dataOutCSV
-            self.DataOut.to_csv( outFile, float_format = fmt, index = False )
+        if len( self.Parameters.dataOutFile ) and \
+           not self.Parameters.dataOutFile.isspace():
+            outFile = self.Parameters.outPath + '/' + self.Parameters.dataOutFile
+            if '.csv' in outFile[-4:] :
+                self.DataOut.to_csv( outFile, float_format = fmt, index = False )
+            elif '.feather' in outFile[-8:] :
+                self.DataOut.to_feather( outFile )
+            else :
+                print( 'GMN.Output(): Unrecognized data out file format' )
 
-        if self.args.DEBUG or self.args.DEBUG_ALL :
-            print( "GMN DataOut:" )
+        if self.args.DEBUG :
+            print( "GMN.Output() DataOut:" )
             print( self.DataOut )
 
         # Plot

@@ -10,7 +10,7 @@ def Forecast( self ):
     '''Node method
        Called from GMN Forecast() in the Network Node loop'''
 
-    if self.args.DEBUG_ALL :
+    if self.args.DEBUG :
         print( '-----> Node:Forecast() : ',self.FunctionType.name, self.name)
         print( self.data.tail( 2 ) );
 
@@ -18,7 +18,7 @@ def Forecast( self ):
     Parameters = self.Parameters
     data       = self.data
 
-    if self.args.DEBUG_ALL :
+    if self.args.DEBUG :
         print( '  data : shape: ', data.shape );
         print( data.tail( 3 ) ); print()
 
@@ -125,7 +125,7 @@ def Forecast( self ):
     elif self.FunctionType.value == FunctionType.knn.value :
         raise RuntimeError( "Forecast knn function not available" )
 
-    if self.args.DEBUG_ALL :
+    if self.args.DEBUG :
         print( self.name, "val:", val )
         print( '<----- Node:Forecast() : ',self.FunctionType.name,self.name )
         print()

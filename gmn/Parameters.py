@@ -19,7 +19,7 @@ class Parameters:
         self.predictionStart  = None
         self.predictionLength = None
         self.outPath          = None
-        self.dataOutCSV       = None
+        self.dataOutFile      = None
         self.showPlot         = None
         self.plotType         = None
         self.plotColumns      = None
@@ -72,7 +72,7 @@ class Parameters:
         print( '\t', 'predictionStart',  self.predictionStart  )
         print( '\t', 'predictionLength', self.predictionLength )
         print( '\t', 'outPath',          self.outPath     )
-        print( '\t', 'dataOutCSV',       self.dataOutCSV  )
+        print( '\t', 'dataOutFile',      self.dataOutFile )
         print( '\t', 'showPlot',         self.showPlot    )
         print( '\t', 'plotType',         self.plotType    )
         print( '\t', 'plotColumns',      self.plotColumns )

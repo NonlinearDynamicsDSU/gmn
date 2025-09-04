@@ -1,8 +1,8 @@
-### #! /usr/bin/env python3
-
 '''
 Functions
-1. TimeExtension() for DataFrame time column. Needs refactor.
+1. ReadDataFrame() read pandas DataFrame
+2. TimeExtension() for DataFrame time column. Needs refactor.
+3. TestTimeExtension()
 '''
 
 # Python distribution modules
@@ -13,8 +13,7 @@ from pandas import DataFrame, Series, read_csv, read_feather, read_pickle
 
 #-----------------------------------------------------------
 #-----------------------------------------------------------
-def ReadDataFrame( file, columnsList = [], usecols = None, 
-                   index_col = None, verbose = False ) :
+def ReadDataFrame( file, usecols = None, index_col = None, verbose = False ) :
     '''Read pandas DataFrame from file.
        File extension can be .csv .feather .gz .xz
     '''
@@ -29,6 +28,9 @@ def ReadDataFrame( file, columnsList = [], usecols = None,
         errMsg = "ReadDataFrame(): file " + file +\
             " must be .csv, .feather, .gz, .xz pandas DataFrame"
         raise RuntimeError( errMsg )
+
+    if verbose :
+        print( f'ReadDataFrame(): {file} : {data.shape}' )
 
     return data
 
@@ -149,8 +151,9 @@ def TimeExtension( times, length = 1, verbose = False ) :
         deltaTime = 1
 
     if verbose:
-        print( 'TimeExtension()', isDateTime, isDate, isTime, isInt, isFloat,
-               str( lastValue ) )
+        msg = f'TimeExtension():\n  isDateTime {isDateTime}  isDate {isDate}' +\
+              f'  isTime {isTime}  isInt {isInt}  isFloat {isFloat}'
+        print( f'{msg}\n  lastValue: {lastValue}' )
 
     # New vector of length
     newTime = [lastValue] * length
@@ -169,7 +172,7 @@ def TimeExtension( times, length = 1, verbose = False ) :
             lastValue    = newTime[ i ]
 
     if verbose:
-        print( "   newTime:", str( newTime ) )
+        print( f'  newTime: {newTime}' )
 
     return newTime
 
@@ -204,8 +207,3 @@ def TestTimeExtension( length = 3 ) :
     TimeExtension( ['12','13','14'], length, True )
     TimeExtension( ['1.0','1.1','1.2'], length, True )
     TimeExtension( ['X','Y'], length, True )
-
-#----------------------------------------------------------------------------
-#----------------------------------------------------------------------------
-#if __name__ == "__main__":
-#    TestTimeExtension()

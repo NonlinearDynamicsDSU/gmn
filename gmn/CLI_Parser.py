@@ -71,12 +71,12 @@ def ParseCmdLine():
                         action = 'store', default = None,
                         help   = 'Write plot to PlotFile.')
 
-    parser.add_argument('-D', '--DEBUG',
-                        dest   = 'DEBUG', # type = bool, 
+    parser.add_argument('-v', '--verbose',
+                        dest   = 'verbose', # type = bool, 
                         action = 'store_true', default = False )
 
-    parser.add_argument('-DA', '--DEBUG_ALL',
-                        dest   = 'DEBUG_ALL', # type = bool, 
+    parser.add_argument('-D', '--DEBUG',
+                        dest   = 'DEBUG', # type = bool, 
                         action = 'store_true', default = False )
 
     args = parser.parse_args()

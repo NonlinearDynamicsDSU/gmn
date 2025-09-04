@@ -24,12 +24,15 @@ def main():
     args.configDir  = "NA"
     args.configFile = "NA"
 
+    if args.verbose :
+        print( args )
+
     P = Parameters()
     P.mode            = args.mode
     P.predictionStart = args.predictionStart
     P.predictionLength= args.predictionLength
     P.outPath         = args.outPath
-    P.dataOutCSV      = args.dataOutCSV
+    P.dataOutFile     = args.dataOutFile
     P.showPlot        = args.showPlot
     P.plotType        = args.plotType
     P.plotColumns     = args.plotColumns
@@ -125,12 +128,12 @@ def ParseCmdLine():
                         action = 'store', default = None,
                         help   = 'Write plot to PlotFile.')
 
-    parser.add_argument('-D', '--DEBUG',
-                        dest   = 'DEBUG', # type = bool, 
+    parser.add_argument('-v', '--verbose',
+                        dest   = 'verbose', # type = bool, 
                         action = 'store_true', default = False )
 
-    parser.add_argument('-DA', '--DEBUG_ALL',
-                        dest   = 'DEBUG_ALL', # type = bool, 
+    parser.add_argument('-D', '--DEBUG',
+                        dest   = 'DEBUG', # type = bool, 
                         action = 'store_true', default = False )
 
     #-------------------------------------------------------------
@@ -156,10 +159,10 @@ def ParseCmdLine():
                         action  = 'store',   default = './',
                         help    = 'output file path')
 
-    parser.add_argument('-do', '--dataOutCSV',
-                        dest    = 'dataOutCSV', type = str, 
+    parser.add_argument('-do', '--dataOutFile',
+                        dest    = 'dataOutFile', type = str, 
                         action  = 'store',      default = '',
-                        help    = 'output CSV file')
+                        help    = 'DataOut file')
 
     parser.add_argument('-Ps', '--showPlot',
                         dest    = 'showPlot', 

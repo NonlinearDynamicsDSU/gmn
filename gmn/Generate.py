@@ -13,7 +13,7 @@ def Generate( self, lastDataOut ):
     '''Node method
        Called from GMN Generate() in the Network Node loop'''
 
-    if self.args.DEBUG_ALL :
+    if self.args.DEBUG :
         print( '-----> Node:Generate() : ', self.FunctionType.name, self.name )
         print( self.data.tail( 2 ) );
         print( 'lastDataOut:' ); print( lastDataOut )
@@ -27,7 +27,7 @@ def Generate( self, lastDataOut ):
     Parameters = self.Parameters
     data       = self.data
 
-    if self.args.DEBUG_ALL :
+    if self.args.DEBUG :
         print( '  Appended data : shape: ', data.shape );
         print( data.tail( 3 ) ); print()
 
@@ -217,7 +217,7 @@ def Generate( self, lastDataOut ):
         pred  = knn.predict( nextX )
         val   = pred[ 0 ]
 
-    if self.args.DEBUG_ALL :
+    if self.args.DEBUG :
         print( self.name, "val:", val )
         print( '<----- Node:Generate() : ',self.FunctionType.name,self.name )
         print()
