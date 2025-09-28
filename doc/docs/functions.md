@@ -1,10 +1,10 @@
 ## GMN Methods
 
 ### <function> GMN </function> 
-** Description **  :   
+**Description** :  
 Class object for Generative Manifold Networks (GMN).
 
-** Constructor Signature **
+**Constructor Signature**
 ```python
 class GMN:
     def __init__( self, args  = None,  parameters = None,
@@ -35,10 +35,10 @@ If `parameters` is `None` the parameters object is created from `args`.
 | plotFile    | string | None | File for plot results |
 | debug       | bool   | False| Logical to print debug info |
 
-** Returns **  :   
+**Returns**  :  
 `GMN` class object.  The object is initialized to create the `GMN.Network` class object, all `Node` class objects of the network including input data, and the `GMN.DataOut` pandas DataFrame. 
 
-** Example ** :   
+**Example** :  
 ```python
 # Initalize GMN object with default.cfg
 import gmn
@@ -48,36 +48,36 @@ G = gmn.GMN( configFile = 'config/default.cfg' )
 ---
 
 ### <function> GMN.Generate </function> 
-** Description **  :   
+**Description**  :   
 Execute GMN forecast loop for `predictionLength` steps calling the Generate() method of each Network Node. Parameters `mode` must be `Generate`.
 
-** Returns **  :   
+**Returns**  :  
 Populates the `GMN.DataOut` pandas DataFrame. 
 
-** Notes ** :   
+**Notes** :
 If `args.outputFile`, or `parameters.dataOutFile`: write `DataOut` as a .csv or .feather file according to the `dataOutFile` file extension.
 
 if args.Plot or args.StatePlot or parameters.showPlot or parameters.plotFile: call GMN.Plot()
 
-** Example ** :   
+**Example** :  
 ```python
 G.Generate()
 ```
 ---
 
 ### <function> GMN.Forecast </function> 
-** Description **  :   
+** Description **  :
 Execute GMN `Forecast()` method of each Network Node. Parameters `mode` must not be `Generate`. Presumes Parameters `lib` and `pred` are specified in the config file. Does not generate data, but makes predictions over the `pred` indices based on the `lib` state-space.
 
-** Returns **  :   
+**Returns**  :  
 Populates the `GMN.DataOut` pandas DataFrame. 
 
-** Notes ** :   
+**Notes** :  
 If `args.outputFile`, or `parameters.dataOutFile`: write `DataOut` as a .csv or .feather file according to the `dataOutFile` file extension.
 
 if args.Plot or args.StatePlot or parameters.showPlot or parameters.plotFile: call GMN.Plot()
 
-** Example ** :   
+**Example** :  
 ```python
 G.Forecast()
 ```
@@ -87,7 +87,7 @@ G.Forecast()
 ** Description **  :   
 Plot generated time series (args.plot = True, or Parameters.plotType is 'time') or time series and 2-D state-space plots (args.statePlot = True, or Parameters.plotType is 'state').
 
-** Returns **  :   
+**Returns**  :  
 pyplot image 
 
 ---
@@ -95,9 +95,9 @@ pyplot image
 ## GMN Attributes
 
 ### GMN.DataOut
-** Description **  :   
+**Description**  :  
 pandas DataFrame of generated data.
 
 ### GMN.Parameters
-** Description **  :   
+**Description**  :  
 Python object of Parameters class.
