@@ -1,136 +1,116 @@
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  
-  
-  <link rel="shortcut icon" href="../img/favicon.ico">
-  <title>Functions - GMN</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
-
-  <link rel="stylesheet" href="../css/theme.css" />
-  <link rel="stylesheet" href="../css/theme_extra.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" />
-  <link href="../extra.css" rel="stylesheet" />
-  <link href="../css/ansi-colours.css" rel="stylesheet" />
-  <link href="../css/jupyter-cells.css" rel="stylesheet" />
-  <link href="../css/pandas-dataframe.css" rel="stylesheet" />
-  
-  <script>
-    // Current page data
-    var mkdocs_page_name = "Functions";
-    var mkdocs_page_input_path = "functions.md";
-    var mkdocs_page_url = null;
-  </script>
-  
-  <script src="../js/jquery-2.1.1.min.js" defer></script>
-  <script src="../js/modernizr-2.8.3.min.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-  <script>hljs.initHighlightingOnLoad();</script> 
-  
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Functions - GMN</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../extra.css" rel="stylesheet" />
+        <link href="../css/ansi-colours.css" rel="stylesheet" />
+        <link href="../css/jupyter-cells.css" rel="stylesheet" />
+        <link href="../css/pandas-dataframe.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Functions";
+        var mkdocs_page_input_path = "functions.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
 </head>
 
 <body class="wy-body-for-nav" role="document">
 
   <div class="wy-grid-for-nav">
-
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
     <div class="wy-side-scroll">
       <div class="wy-side-nav-search">
-        <a href=".." class="icon icon-home"> GMN</a>
-        
+          <a href=".." class="icon icon-home"> GMN
+        </a>
       </div>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../overview/">Overview</a>
-                    </li>
-                </ul>
-                <p class="caption"><span class="caption-text">Getting Started</span></p>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../installation/">Installation</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../example/">Example</a>
-                    </li>
-                </ul>
-                <p class="caption"><span class="caption-text">Documentation</span></p>
-                <ul class="current">
-                    <li class="toctree-l1 current"><a class="reference internal current" href="./">Functions</a>
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../overview/">Overview</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../installation/">Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../example/">Example</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Functions</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#gmn"> GMN </a>
+    <li class="toctree-l2"><a class="reference internal" href="#gmn">GMN</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#gmngenerate"> GMN.Generate </a>
+    <li class="toctree-l2"><a class="reference internal" href="#gmngenerate">GMN.Generate</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#gmnforecast"> GMN.Forecast </a>
+    <li class="toctree-l2"><a class="reference internal" href="#gmnforecast">GMN.Forecast</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#gmnplot"> GMN.Plot </a>
+    <li class="toctree-l2"><a class="reference internal" href="#gmnplot">GMN.Plot</a>
     </li>
     </ul>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../parameters/">Parameters</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../edm/">EDM</a>
-                    </li>
-                </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../parameters/">Parameters</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../edm/">EDM</a>
+                </li>
+              </ul>
       </div>
     </div>
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="..">GMN</a>
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GMN</a>
+        
       </nav>
-
-      
       <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="..">Docs</a> &raquo;</li>
-    
-      
-        
-          <li>Documentation &raquo;</li>
-        
-      
-    
-    <li>Functions</li>
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Documentation</li>
+      <li class="breadcrumb-item active">Functions</li>
     <li class="wy-breadcrumbs-aside">
-      
     </li>
   </ul>
-  
   <hr/>
 </div>
-          <div role="main">
-            <div class="section">
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
               
                 <h2 id="gmn-methods">GMN Methods</h2>
 <h3 id="gmn"><function> GMN </function></h3>
-<p><strong> Description </strong>  : <br />
+<p>** Description **  : <br />
 Class object for Generative Manifold Networks (GMN).</p>
-<p><strong> Constructor Signature </strong></p>
+<p>** Constructor Signature **</p>
 <pre><code class="language-python">class GMN:
     def __init__( self, args  = None,  parameters = None,
                   configFile  = None,  configDir  = None,
-                  outputFile  = None,  cores      = 4, 
-                  plot        = False, statePlot  = False, 
+                  outputFile  = None,  cores      = 4,
+                  plot        = False, plotType   = 'state',
                   plotColumns = [],    plotFile   = None,
-                  debug       = False )
+                  figureSize  = [8,8], verbose    = False, debug = False ):
 </code></pre>
 <p>Full configuration is performed by instantiating GMN with <code>args</code> from <a href="https://github.com/NonlinearDynamicsDSU/gmn/blob/master/gmn/CLI_Parser.py">gmn.CLI_Parser.ParseCmdLine()</a> and <code>parameters</code> from <a href="https://github.com/NonlinearDynamicsDSU/gmn/blob/master/gmn/ConfigParser.py">gmn.ConfigParser.ReadConfig()</a>. This is normally done in an application such as the command-line-interface (CLI) program <a href="https://github.com/NonlinearDynamicsDSU/gmn/blob/master/apps/Run.py">Run.py</a>.</p>
 <p>If <code>args</code> is <code>None</code> <code>GMN.__init__</code> function arguments are used to populate args. </p>
@@ -170,10 +150,10 @@ Class object for Generative Manifold Networks (GMN).</p>
 <td>Path to directory of configuration file(s)</td>
 </tr>
 <tr>
-<td>outputFile</td>
+<td>dataOutFile</td>
 <td>string</td>
 <td>None</td>
-<td>CSV output file</td>
+<td>Generated data output file : .csv or .feather</td>
 </tr>
 <tr>
 <td>cores</td>
@@ -213,78 +193,69 @@ Class object for Generative Manifold Networks (GMN).</p>
 </tr>
 </tbody>
 </table>
-<p><strong> Returns </strong>  : <br />
+<p>** Returns **  : <br />
 <code>GMN</code> class object.  The object is initialized to create the <code>GMN.Network</code> class object, all <code>Node</code> class objects of the network including input data, and the <code>GMN.DataOut</code> pandas DataFrame. </p>
-<p><strong> Example </strong> :   </p>
+<p>** Example ** :   </p>
 <pre><code class="language-python"># Initalize GMN object with default.cfg
 import gmn
 G = gmn.GMN( configFile = 'config/default.cfg' )
 </code></pre>
 <hr />
 <h3 id="gmngenerate"><function> GMN.Generate </function></h3>
-<p><strong> Description </strong>  : <br />
+<p>** Description **  : <br />
 Execute GMN forecast loop for <code>predictionLength</code> steps calling the Generate() method of each Network Node. Parameters <code>mode</code> must be <code>Generate</code>.</p>
-<p><strong> Returns </strong>  : <br />
+<p>** Returns **  : <br />
 Populates the <code>GMN.DataOut</code> pandas DataFrame. </p>
-<p><strong> Notes </strong> : <br />
-If <code>args.outputFile</code>, or <code>parameters.dataOutCSV</code>: write <code>DataOut</code> as a .csv file.</p>
+<p>** Notes ** : <br />
+If <code>args.outputFile</code>, or <code>parameters.dataOutFile</code>: write <code>DataOut</code> as a .csv or .feather file according to the <code>dataOutFile</code> file extension.</p>
 <p>if args.Plot or args.StatePlot or parameters.showPlot or parameters.plotFile: call GMN.Plot()</p>
-<p><strong> Example </strong> :   </p>
+<p>** Example ** :   </p>
 <pre><code class="language-python">G.Generate()
 </code></pre>
 <hr />
 <h3 id="gmnforecast"><function> GMN.Forecast </function></h3>
-<p><strong> Description </strong>  : <br />
+<p>** Description **  : <br />
 Execute GMN <code>Forecast()</code> method of each Network Node. Parameters <code>mode</code> must not be <code>Generate</code>. Presumes Parameters <code>lib</code> and <code>pred</code> are specified in the config file. Does not generate data, but makes predictions over the <code>pred</code> indices based on the <code>lib</code> state-space.</p>
-<p><strong> Returns </strong>  : <br />
+<p>** Returns **  : <br />
 Populates the <code>GMN.DataOut</code> pandas DataFrame. </p>
-<p><strong> Notes </strong> : <br />
-If <code>args.outputFile</code>, or <code>parameters.dataOutCSV</code>: write <code>DataOut</code> as a .csv file.</p>
+<p>** Notes ** : <br />
+If <code>args.outputFile</code>, or <code>parameters.dataOutFile</code>: write <code>DataOut</code> as a .csv or .feather file according to the <code>dataOutFile</code> file extension.</p>
 <p>if args.Plot or args.StatePlot or parameters.showPlot or parameters.plotFile: call GMN.Plot()</p>
-<p><strong> Example </strong> :   </p>
+<p>** Example ** :   </p>
 <pre><code class="language-python">G.Forecast()
 </code></pre>
 <hr />
 <h3 id="gmnplot"><function> GMN.Plot </function></h3>
-<p><strong> Description </strong>  : <br />
+<p>** Description **  : <br />
 Plot generated time series (args.plot = True, or Parameters.plotType is 'time') or time series and 2-D state-space plots (args.statePlot = True, or Parameters.plotType is 'state').</p>
-<p><strong> Returns </strong>  : <br />
+<p>** Returns **  : <br />
 pyplot image </p>
 <hr />
 <h2 id="gmn-attributes">GMN Attributes</h2>
 <h3 id="gmndataout">GMN.DataOut</h3>
-<p><strong> Description </strong>  : <br />
+<p>** Description **  : <br />
 pandas DataFrame of generated data.</p>
 <h3 id="gmnparameters">GMN.Parameters</h3>
-<p><strong> Description </strong>  : <br />
+<p>** Description **  : <br />
 Python object of Parameters class.</p>
               
             </div>
-          </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../example/" class="btn btn-neutral float-left" title="Example"><span class="icon icon-circle-arrow-left"></span> Previous</a>
         <a href="../parameters/" class="btn btn-neutral float-right" title="Parameters">Next <span class="icon icon-circle-arrow-right"></span></a>
-      
-      
-        <a href="../example/" class="btn btn-neutral" title="Example"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-      
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <!-- Copyright etc -->
-    
       <p>Copyright &copy; 2021 - 2023 Gerald Pao</p>
-    
   </div>
 
-  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
 </footer>
-      
+          
         </div>
       </div>
 
@@ -292,23 +263,25 @@ Python object of Parameters class.</p>
 
   </div>
 
-  <div class="rst-versions" role="note" aria-label="versions">
-    <span class="rst-current-version" data-toggle="rst-current-version">
-      
-      
-        <span><a href="../example/" style="color: #fcfcfc;">&laquo; Previous</a></span>
-      
-      
-        <span style="margin-left: 15px"><a href="../parameters/" style="color: #fcfcfc">Next &raquo;</a></span>
-      
-    </span>
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../example/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../parameters/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
 </div>
-    <script>var base_url = '..';</script>
-    <script src="../js/theme.js" defer></script>
-    <script defer>
-        window.onload = function () {
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+    <script>
+        jQuery(function () {
             SphinxRtdTheme.Navigation.enable(true);
-        };
+        });
     </script>
 
 </body>
