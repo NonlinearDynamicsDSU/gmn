@@ -9,10 +9,10 @@ Class object for Generative Manifold Networks (GMN).
 class GMN:
     def __init__( self, args  = None,  parameters = None,
                   configFile  = None,  configDir  = None,
-                  outputFile  = None,  cores      = 4, 
-                  plot        = False, statePlot  = False, 
+                  outputFile  = None,  cores      = 4,
+                  plot        = False, plotType   = 'state',
                   plotColumns = [],    plotFile   = None,
-                  debug       = False )
+                  figureSize  = [8,8], verbose    = False, debug = False ):
 ```
 
 Full configuration is performed by instantiating GMN with `args` from [gmn.CLI_Parser.ParseCmdLine()](https://github.com/NonlinearDynamicsDSU/gmn/blob/master/gmn/CLI_Parser.py) and `parameters` from [gmn.ConfigParser.ReadConfig()](https://github.com/NonlinearDynamicsDSU/gmn/blob/master/gmn/ConfigParser.py). This is normally done in an application such as the command-line-interface (CLI) program [Run.py](https://github.com/NonlinearDynamicsDSU/gmn/blob/master/apps/Run.py).
@@ -27,7 +27,7 @@ If `parameters` is `None` the parameters object is created from `args`.
 | parameters  | gmn Parameter object    | None | GMN parameters
 | configFile  | string | None | Configuration file for Network / Nodes |
 | configDir   | string | None | Path to directory of configuration file(s) |
-| outputFile  | string | None | CSV output file |
+| dataOutFile | string | None | Generated data output file : .csv or .feather |
 | cores       | int    | 4    | Number of CPU processor cores |
 | plot        | bool   | False| Logical to plot time series results |
 | statePlot   | bool   | False| Logical to plot time series and state results |
@@ -55,7 +55,7 @@ Execute GMN forecast loop for `predictionLength` steps calling the Generate() me
 Populates the `GMN.DataOut` pandas DataFrame. 
 
 ** Notes ** :   
-If `args.outputFile`, or `parameters.dataOutCSV`: write `DataOut` as a .csv file.
+If `args.outputFile`, or `parameters.dataOutFile`: write `DataOut` as a .csv or .feather file according to the `dataOutFile` file extension.
 
 if args.Plot or args.StatePlot or parameters.showPlot or parameters.plotFile: call GMN.Plot()
 
@@ -73,7 +73,7 @@ Execute GMN `Forecast()` method of each Network Node. Parameters `mode` must not
 Populates the `GMN.DataOut` pandas DataFrame. 
 
 ** Notes ** :   
-If `args.outputFile`, or `parameters.dataOutCSV`: write `DataOut` as a .csv file.
+If `args.outputFile`, or `parameters.dataOutFile`: write `DataOut` as a .csv or .feather file according to the `dataOutFile` file extension.
 
 if args.Plot or args.StatePlot or parameters.showPlot or parameters.plotFile: call GMN.Plot()
 

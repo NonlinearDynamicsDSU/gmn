@@ -14,7 +14,7 @@ mode             = Generate
 predictionStart  = 700
 predictionLength = 300
 outPath          = ../output
-dataOutCSV       =
+dataOutFile      =
 showPlot         = True
 plotType         = state
 plotColumns      = Out A B C D
@@ -49,6 +49,8 @@ exclusionRadius = 0
 columns         = 
 target          = 
 solver          = 
+# embedded False : node input is mixed-multivariate according to E,tau
+# embedded True  : node input is multivariate no time delays
 embedded        = False
 validLib        = 
 generateSteps   = 0

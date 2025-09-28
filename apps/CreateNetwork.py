@@ -6,52 +6,95 @@ from   datetime import datetime
 
 # Community modules
 import matplotlib.pyplot as plt
-from   networkx import DiGraph, is_directed_acyclic_graph, draw, shell_layout
+from   networkx import DiGraph, is_directed_acyclic_graph, draw_networkx
+from   networkx import arf_layout, kamada_kawai_layout, circular_layout
+from   networkx import shell_layout, spring_layout, spectral_layout
 from   networkx import node_link_data, topological_sort
+from   pandas   import read_csv, read_feather, read_pickle
 
 # Local modules
 from gmn.Auxiliary import ReadDataFrame
 
 #----------------------------------------------------------------------------
-def main():
-    ''' Create a GMN network using networkx directed graph DiGraph.
-    An interaction matrix (args.interactionFile) is required input.
+def CreateNetwork( interactionMatrix = None, targetCols = [],
+                   threshold = 0, numDrivers = 3, driversFile = None,
+                   driversColumns = ['column','E'], excludeColumns = [],
+                   outputFile = None, cmi = False, plotNetwork = False,
+                   layout = 'arf', arrowsize = 10, node_size = 30,
+                   node_color = '#1f78b4', alpha = 1, width = 1.2,
+                   figsize = (8,8), fontSize = 12,
+                   verbose = False, debug = False ):
+    
+    '''Create a GMN network using networkx directed graph DiGraph.
+    An interaction matrix (interactionMatrix file) is required input.
+    targetCols is required input.
+
     The imatrix rows quantify interaction for each node. The node in the
     first column of a row is the driven node, nodes in the other columns
     along the row are potential drivers. 
 
-    CreateNetwork() writes binary networkx.DiGraph() object to args.outputFile,
+    Starting with a list of target nodes (targetCols) link the strongest
+    numDrivers to each target node. Then, recursively add nodes that link
+    to the established target nodes and drivers.
+
+    numDriversDF is an optional DataFrame with node names in column 1 and
+    node numDrivers in column 2. If numDriversDF is None (default) all
+    node numDrivers are set to numDrivers, else set default numDrivers
+    from numDrivers and replace with any specified in numDriversDF.
+
+    Write binary networkx.DiGraph() object to args.outputFile,
     or a .json file if args.outputFile ends with ".json"
+
+    Return { Graph : network_graph, Map : network_dict }.
     '''
-    args = ParseCmdLine()
-
-    interactMatrix = ReadMatrix( args )
-
-    CreateNetwork( args, interactMatrix )
-
-#----------------------------------------------------------------------------
-def CreateNetwork( args, interactionMatrix ):
-    '''Starting with a list of target nodes (args.targetCols) link the strongest
-    args.numDrivers to each target node. Then, recursively add nodes that 
-    link to the established target nodes and drivers. 
-
-    Write binary networkx.DiGraph() & dict objects to args.outputFile.
-    Return { Graph : network_graph, Map : network_dict }.'''
+    if interactionMatrix is None :
+        err = 'CreateNetwork() interactionMatrix file name required'
+        raise RuntimeError( err )
+    if isinstance( targetCols, str ) :
+        targetCols = [ targetCols ] # convert str to []
+    if not len( targetCols ) :
+        err = 'CreateNetwork() targetCols required'
+        raise RuntimeError( err )
+    
+    interactMatrix = ReadMatrix( interactionMatrix = interactionMatrix,
+                                 excludeColumns = excludeColumns,
+                                 verbose = verbose, debug = debug )
+    if driversFile is None :
+        numDriversDF = None
+    else :
+        numDriversDF = ReadNodeDrivers( driversFile, verbose, debug )
 
     start = datetime.now()
 
-    if args.verbose :
+    if verbose :
         print( f"CreateNetwork() {datetime.now()}", flush = True )
+
+    # numDrivers_ is a dict mapping { node : numDrivers }
+    # Create numDrivers_ with default values from numDrivers
+    numDrivers_ = dict( zip( interactMatrix.columns,
+                        [numDrivers] * len( interactMatrix.columns ) ) )
+
+    if not numDriversDF is None :
+        # Convert numDriversDF to dict based on driversColumns
+        numDriversD = dict( zip(numDriversDF.loc[:,driversColumns[0]],
+                                numDriversDF.loc[:,driversColumns[1]]) )
+        # Copy numDrivers from numDriversDF into numDrivers_
+        for node in numDriversD.keys() :
+            numDrivers_[ node ] = numDriversD[ node ]
+
+        if debug :
+            print( f'CreateNetwork() {len(numDriversDF)} numDrivers_' )
+            print( numDrivers_ )
 
     network_graph = DiGraph() # for assessing graph properties
     network_nodes = []        # nodes already added to network
 
     # nodes to be explored start at targetCols
-    explore_queue = args.targetCols.copy()  
+    explore_queue = targetCols.copy()  
     network_dict  = {}  # { node : [drivers] }
     network_cycle = {}  # nodes that create loops (not used)
 
-    # Starting at args.targetCols, keep adding nodes until no more
+    # Starting at targetCols, keep adding nodes until no more
     # nodes in explore_queue
     while len( explore_queue ):
         node_id = explore_queue.pop(0)
@@ -59,29 +102,31 @@ def CreateNetwork( args, interactionMatrix ):
         if node_id in network_nodes:
             continue
 
+        nodeNumDrivers = numDrivers_[ node_id ]
+
         network_nodes.append( node_id )
         network_dict [ node_id ] = [] # empty list of drivers for new node
         network_cycle[ node_id ] = [] # empty list of cyclic nodes for new node
 
         # Sort & rank iMatrix (ascending if CMI
         # Store node_ids that exceed threshold (or meet if CMI)
-        if args.cmi :
+        if cmi :
             # Rank iMatrix ascending, not descending
             # df.loc[ x ] returns the row x as a Series.
             top_drivers =\
-                interactionMatrix.loc[ node_id ].sort_values( ascending = True )
+                interactMatrix.loc[ node_id ].sort_values( ascending = True )
             # Threshold iMatrix >= to allow 0 MI as best rank
             top_drivers =\
-                top_drivers[( top_drivers >= args.threshold ) & \
-                            ( top_drivers.index != node_id )][:args.numDrivers]
+                top_drivers[( top_drivers >= threshold ) & \
+                            ( top_drivers.index != node_id )][:nodeNumDrivers]
         else :
             # df.loc[ x ] returns the row x as a Series.
             top_drivers =\
-                interactionMatrix.loc[ node_id ].sort_values()
+                interactMatrix.loc[ node_id ].sort_values()
 
             top_drivers =\
-                top_drivers[( top_drivers > args.threshold ) & \
-                            ( top_drivers.index != node_id )][:args.numDrivers]
+                top_drivers[( top_drivers > threshold ) & \
+                            ( top_drivers.index != node_id )][:nodeNumDrivers]
 
         for driver_id in top_drivers.index:
             # Try adding driver -> current node & edge to network
@@ -106,10 +151,10 @@ def CreateNetwork( args, interactionMatrix ):
             explore_queue.append( driver_id )
 
     print( len( network_graph ), 'nodes', flush = True )
-    if args.cmi :
+    if cmi :
         print( 'NOTE: --cmi : iMatrix sorted ascending, threshold >=' )
 
-    if args.debug :
+    if debug :
         print( "Network Dictionary { Node : ( [Drivers] ), ... }", flush = True )
         print( network_dict, flush = True )
         print( "Network Cycle { Node : [], ... }", flush = True )
@@ -120,57 +165,131 @@ def CreateNetwork( args, interactionMatrix ):
     print( f'Elapsed time: {datetime.now() - start}', flush = True )
 
     #----------------------------------------------------------
-    if args.outputFile :
-        if args.verbose :
-            print( f'Writing {args.outputFile} {datetime.now()}', flush = True )
+    if outputFile :
+        if verbose :
+            print( f'Writing {outputFile} {datetime.now()}', flush = True )
 
-        if ".json" in args.outputFile[-5:] :
+        if ".json" in outputFile[-5:] :
             obj = node_link_data( network_graph, edges = "edges" )
             obj[ 'topological_ordering' ] =\
                 list( topological_sort( network_graph ) )
-            obj[ 'target_cols' ] = args.targetCols
+            obj[ 'target_cols' ] = targetCols
 
-            with open( args.outputFile, 'w' ) as fdOut:
+            with open( outputFile, 'w' ) as fdOut:
                 json.dump( obj, fdOut )
         else:
-            with open( args.outputFile, 'wb' ) as fdOut:
+            with open( outputFile, 'wb' ) as fdOut:
                 pickle.dump( Network, fdOut )
 
-        if args.verbose :
+        if verbose :
             print( f'Writing complete {datetime.now()}', flush = True )
 
     #----------------------------------------------------------
-    if args.plotNetwork :
-        plt.figure()
-        draw( network_graph,
-              pos = shell_layout( network_graph ),
-              node_size = 30, with_labels = True,
-              font_size = args.fontSize,
-              font_weight = 'bold', alpha = 0.5 )
+    if plotNetwork :
+        if   layout == 'arf'     : layout = arf_layout
+        elif layout == 'kk'      : layout = kamada_kawai_layout
+        elif layout == 'circ'    : layout = circular_layout
+        elif layout == 'shell'   : layout = shell_layout
+        elif layout == 'spring'  : layout = spring_layout
+        elif layout == 'spectal' : layout = spectral_layout
+        else                          : layout = spring_layout
+
+        plt.figure( figsize = figsize, tight_layout = True )
+        draw_networkx( network_graph,
+                       pos = layout( network_graph ),
+                       with_labels = True, arrowsize = arrowsize,
+                       node_size = node_size, node_color = node_color,
+                       alpha = alpha, width = width,
+                       font_size = fontSize,
+                       font_weight = 'bold', horizontalalignment = 'left',
+                       verticalalignment = 'baseline' )
         plt.show()
 
+    return Network
+
 #----------------------------------------------------------------------------
-def ReadMatrix( args ):
+def ReadNodeDrivers( driversFile = None, verbose = False, debug = False ):
+    '''Read data file of node drivers into dict.
+       If file extension is .csv .feather .gz .xz : use pandas -> DataFrame
+       if file extension is .pkl : use pickle.load -> ???
+    '''
+
+    if verbose :
+        print( f"Read Node Drivers ... {datetime.now()}", flush = True )
+
+    if driversFile is None :
+        raise RuntimeError( 'ReadNodeDrivers() driversFile is None' )
+
+    nodeDF = None
+    if '.csv' in driversFile[-4:] :
+        nodeDF = read_csv( driversFile )
+    elif '.feather' in driversFile[-8:] :
+        nodeDF = read_feather( driversFile )
+    elif '.gz' in driversFile[-3:] or '.xz' in driversFile[-3:]:
+        nodeDF = read_pickle( file )
+    elif '.pkl' in driversFile[-4:] :
+        with open( driversFile, 'rb' ) as f:
+            nodeDF = pickle.load( f )
+    else :
+        err = f'ReadNodeDrivers() unrecognized file type {driversFile}'
+        raise RuntimeError( err )
+
+    if verbose :
+        print( f"Read {len( nodeDF )} node numDrivers", flush = True )
+    if debug :
+        print( "Node numDrivers :", flush = True )
+        print( nodeDF, flush = True )
+
+    return nodeDF
+
+#----------------------------------------------------------------------------
+def ReadMatrix( interactionMatrix, excludeColumns = [],
+                verbose = False, debug = False ):
     '''Read data file of interaction matrix into pandas DataFrame.'''
 
-    if args.verbose :
+    if verbose :
         print( f"Read Interaction Matrix ... {datetime.now()}", flush = True )
 
     # Read interaction matrix into pandas DataFrame
-    interactMatrix = ReadDataFrame( args.interactionMatrix, index_col = 0 )
+    interactMatrix = ReadDataFrame( interactionMatrix, index_col = 0 )
 
-    if len( args.excludeColumns ) :
-        interactMatrix.drop( index   = args.excludeColumns, inplace = True )
-        interactMatrix.drop( columns = args.excludeColumns, inplace = True )
+    if len( excludeColumns ) :
+        interactMatrix.drop( index   = excludeColumns, inplace = True )
+        interactMatrix.drop( columns = excludeColumns, inplace = True )
 
-    if args.verbose :
-        print( "Interaction Matrix shape :", end = "  ", flush = True )
-        print( interactMatrix.shape, flush = True )
-    if args.debug :
+    if verbose :
+        print( f"Interaction Matrix shape : {interactMatrix.shape}", flush=True )
+    if debug :
         print( "Interaction Matrix:", flush = True )
         print( interactMatrix.round( 4 ), flush = True )
 
     return interactMatrix
+
+#----------------------------------------------------------------------------
+def CreateNetwork_CmdLine():
+    '''Wrapper for CreateNetwork with command line parsing'''
+
+    args = ParseCmdLine()
+    # Call CreateNetwork()
+    n = CreateNetwork( args.interactionMatrix,
+                       args.targetCols,
+                       threshold      = args.threshold,
+                       numDrivers     = args.numDrivers,
+                       driversFile    = args.driversFile,
+                       driversColumns = args.driversColumns,
+                       excludeColumns = args.excludeColumns,
+                       cmi            = args.cmi,
+                       outputFile     = args.outputFile,
+                       plotNetwork    = args.plotNetwork,
+                       layout         = args.layout,
+                       arrowsize      = args.arrowsize,
+                       node_size      = args.node_size,
+                       node_color     = args.node_color,
+                       alpha          = args.alpha,
+                       width          = args.width ,
+                       fontSize       = args.fontSize,
+                       verbose        = args.verbose,
+                       debug          = args.debug )
 
 #----------------------------------------------------------------------------
 def ParseCmdLine():
@@ -179,25 +298,14 @@ def ParseCmdLine():
     parser.add_argument('-i', '--interactionMatrix',
                         dest    = 'interactionMatrix', type = str, 
                         action  = 'store',
-                        default = './ABCD_rhoDiff.csv',
+                        default = None,
                         help    = 'Interaction matrix: .csv or .feather.')
 
     parser.add_argument('-t', '--targetCols', nargs = '+',
                         dest    = 'targetCols', type = str, 
                         action  = 'store',
-                        default = ["Out"],
+                        default = [],
                         help    = 'Target columns.')
-
-    parser.add_argument('-c', '--cmi',
-                        dest   = 'cmi',
-                        action = 'store_true',  default = False,
-                        help   = 'Interaction matrix row sort ascending,' +\
-                                 'threshold >= to allow 0 MI')
-
-    parser.add_argument('-o', '--outputFile',
-                        dest    = 'outputFile', type = str, 
-                        action  = 'store', default = None,
-                        help    = 'Output file name.')
 
     parser.add_argument('-T', '--threshold',
                         dest   = 'threshold', type = float,
@@ -209,15 +317,66 @@ def ParseCmdLine():
                         action = 'store',  default = 4,
                         help   = 'Number of driver timeseries.')
 
+    parser.add_argument('-df', '--driversFile',
+                        dest   = 'driversFile', type = str, 
+                        action = 'store',  default = None,
+                        help   = 'File with map of node:numDrivers.')
+
+    parser.add_argument('-dc', '--driversColumns', nargs = 2,
+                        dest   = 'driversColumns', type = str, 
+                        action = 'store',  default = ['column','E'],
+                        help   = 'Column names of node, E in driversFile.')
+
     parser.add_argument('-x', '--excludeColumns', nargs = '*',
                         dest   = 'excludeColumns', type = str, 
                         action = 'store',  default = [],
                         help   = 'Columns to exclude.')
 
+    parser.add_argument('-c', '--cmi',
+                        dest   = 'cmi',
+                        action = 'store_true', default = False,
+                        help   = 'Interaction matrix row sort ascending,' +\
+                                 'threshold >= to allow 0 MI')
+
+    parser.add_argument('-o', '--outputFile',
+                        dest    = 'outputFile', type = str, 
+                        action  = 'store', default = None,
+                        help    = 'Output file name.')
+
     parser.add_argument('-P', '--plotNetwork',
                         dest   = 'plotNetwork', 
                         action = 'store_true',  default = False,
                         help   = 'Render network graph.')
+
+    parser.add_argument('-l', '--layout',
+                        dest   = 'layout', type = str, 
+                        action = 'store',  default = 'spring',
+        help   = 'Graph plot layout : arf, kk, circ, shell, spring, spectral.')
+
+    parser.add_argument('-as', '--arrowsize',
+                        dest   = 'arrowsize', type = int, 
+                        action = 'store',  default = 10,
+                        help   = 'arrowsize.')
+
+    parser.add_argument('-ns', '--node_size',
+                        dest   = 'node_size', type = int, 
+                        action = 'store',  default = 30,
+                        help   = 'node_size.')
+
+    parser.add_argument('-nc', '--node_color',
+                        dest   = 'node_color', type = str, 
+                        action = 'store',  default = '#1f78b4',
+                        help   = 'node color.')
+
+    parser.add_argument('-al', '--alpha',
+                        dest   = 'alpha', type = float, 
+                        action = 'store',  default = 1.,
+                        help   = 'alpha.')
+
+    parser.add_argument('-lw', '--width',
+                        dest   = 'width', type = float, 
+                        action = 'store',  default = 1.2,
+                        help   = 'edge width.')
 
     parser.add_argument('-fs', '--fontSize',
                         dest   = 'fontSize', type = int, 
@@ -245,4 +404,4 @@ def ParseCmdLine():
 # Provide for cmd line invocation and clean module loading
 #----------------------------------------------------------------------------
 if __name__ == "__main__":
-    main()
+    CreateNetwork_CmdLine()
