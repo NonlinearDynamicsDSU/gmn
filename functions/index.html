@@ -101,9 +101,9 @@
               
                 <h2 id="gmn-methods">GMN Methods</h2>
 <h3 id="gmn"><function> GMN </function></h3>
-<p>** Description **  : <br />
+<p><strong>Description</strong> :<br />
 Class object for Generative Manifold Networks (GMN).</p>
-<p>** Constructor Signature **</p>
+<p><strong>Constructor Signature</strong></p>
 <pre><code class="language-python">class GMN:
     def __init__( self, args  = None,  parameters = None,
                   configFile  = None,  configDir  = None,
@@ -193,50 +193,50 @@ Class object for Generative Manifold Networks (GMN).</p>
 </tr>
 </tbody>
 </table>
-<p>** Returns **  : <br />
+<p><strong>Returns</strong>  :<br />
 <code>GMN</code> class object.  The object is initialized to create the <code>GMN.Network</code> class object, all <code>Node</code> class objects of the network including input data, and the <code>GMN.DataOut</code> pandas DataFrame. </p>
-<p>** Example ** :   </p>
+<p><strong>Example</strong> :  </p>
 <pre><code class="language-python"># Initalize GMN object with default.cfg
 import gmn
 G = gmn.GMN( configFile = 'config/default.cfg' )
 </code></pre>
 <hr />
 <h3 id="gmngenerate"><function> GMN.Generate </function></h3>
-<p>** Description **  : <br />
+<p><strong>Description</strong>  : <br />
 Execute GMN forecast loop for <code>predictionLength</code> steps calling the Generate() method of each Network Node. Parameters <code>mode</code> must be <code>Generate</code>.</p>
-<p>** Returns **  : <br />
+<p><strong>Returns</strong>  :<br />
 Populates the <code>GMN.DataOut</code> pandas DataFrame. </p>
-<p>** Notes ** : <br />
+<p><strong>Notes</strong> :
 If <code>args.outputFile</code>, or <code>parameters.dataOutFile</code>: write <code>DataOut</code> as a .csv or .feather file according to the <code>dataOutFile</code> file extension.</p>
 <p>if args.Plot or args.StatePlot or parameters.showPlot or parameters.plotFile: call GMN.Plot()</p>
-<p>** Example ** :   </p>
+<p><strong>Example</strong> :  </p>
 <pre><code class="language-python">G.Generate()
 </code></pre>
 <hr />
 <h3 id="gmnforecast"><function> GMN.Forecast </function></h3>
-<p>** Description **  : <br />
+<p>** Description **  :
 Execute GMN <code>Forecast()</code> method of each Network Node. Parameters <code>mode</code> must not be <code>Generate</code>. Presumes Parameters <code>lib</code> and <code>pred</code> are specified in the config file. Does not generate data, but makes predictions over the <code>pred</code> indices based on the <code>lib</code> state-space.</p>
-<p>** Returns **  : <br />
+<p><strong>Returns</strong>  :<br />
 Populates the <code>GMN.DataOut</code> pandas DataFrame. </p>
-<p>** Notes ** : <br />
+<p><strong>Notes</strong> :<br />
 If <code>args.outputFile</code>, or <code>parameters.dataOutFile</code>: write <code>DataOut</code> as a .csv or .feather file according to the <code>dataOutFile</code> file extension.</p>
 <p>if args.Plot or args.StatePlot or parameters.showPlot or parameters.plotFile: call GMN.Plot()</p>
-<p>** Example ** :   </p>
+<p><strong>Example</strong> :  </p>
 <pre><code class="language-python">G.Forecast()
 </code></pre>
 <hr />
 <h3 id="gmnplot"><function> GMN.Plot </function></h3>
 <p>** Description **  : <br />
 Plot generated time series (args.plot = True, or Parameters.plotType is 'time') or time series and 2-D state-space plots (args.statePlot = True, or Parameters.plotType is 'state').</p>
-<p>** Returns **  : <br />
+<p><strong>Returns</strong>  :<br />
 pyplot image </p>
 <hr />
 <h2 id="gmn-attributes">GMN Attributes</h2>
 <h3 id="gmndataout">GMN.DataOut</h3>
-<p>** Description **  : <br />
+<p><strong>Description</strong>  :<br />
 pandas DataFrame of generated data.</p>
 <h3 id="gmnparameters">GMN.Parameters</h3>
-<p>** Description **  : <br />
+<p><strong>Description</strong>  :<br />
 Python object of Parameters class.</p>
               
             </div>
