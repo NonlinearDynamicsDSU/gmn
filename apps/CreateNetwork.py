@@ -10,24 +10,24 @@ from   networkx import DiGraph, is_directed_acyclic_graph, draw_networkx
 from   networkx import arf_layout, kamada_kawai_layout, circular_layout
 from   networkx import shell_layout, spring_layout, spectral_layout
 from   networkx import node_link_data, topological_sort
-from   pandas   import read_csv, read_feather, read_pickle
+from   pandas   import DataFrame, read_csv, read_feather, read_pickle
 
 # Local modules
 from gmn.Auxiliary import ReadDataFrame
 
 #----------------------------------------------------------------------------
-def CreateNetwork( interactionMatrix = None, targetCols = [],
-                   threshold = 0, numDrivers = 3, driversFile = None,
-                   driversColumns = ['column','E'], excludeColumns = [],
-                   outputFile = None, cmi = False, plotNetwork = False,
-                   layout = 'arf', arrowsize = 10, node_size = 30,
-                   node_color = '#1f78b4', alpha = 1, width = 1.2,
-                   figsize = (8,8), fontSize = 12,
+def CreateNetwork( interactionMatrix = None, interactionMatrixFile = None,
+                   targetCols = [], threshold = 0, numDrivers = 3,
+                   driversFile = None, driversColumns = ['column','E'],
+                   excludeColumns = [], outputFile = None, cmi = False,
+                   plotNetwork = False, layout = 'arf', arrowsize = 10,
+                   node_size = 30, node_color = '#1f78b4', alpha = 1,
+                   width = 1.2, figsize = (8,8), fontSize = 12,
                    verbose = False, debug = False ):
-    
+
     '''Create a GMN network using networkx directed graph DiGraph.
-    An interaction matrix (interactionMatrix file) is required input.
-    targetCols is required input.
+    An interaction matrix (interactionMatrix DataFrame or file name) is
+    required input. targetCols is required input.
 
     The imatrix rows quantify interaction for each node. The node in the
     first column of a row is the driven node, nodes in the other columns
@@ -48,17 +48,31 @@ def CreateNetwork( interactionMatrix = None, targetCols = [],
     Return { Graph : network_graph, Map : network_dict }.
     '''
     if interactionMatrix is None :
-        err = 'CreateNetwork() interactionMatrix file name required'
-        raise RuntimeError( err )
+        if interactionMatrixFile is None :
+            err = 'CreateNetwork() interactionMatrix or file name required'
+            raise RuntimeError( err )
+
+        iMatrix = ReadMatrix( interactionMatrixFile,
+                              excludeColumns = excludeColumns,
+                              verbose = verbose, debug = debug )
+    else :
+        iMatrix = interactionMatrix
+
+        if not isinstance( iMatrix, DataFrame ) :
+            err = 'CreateNetwork() interactionMatrix must be DataFrame'
+            raise RuntimeError( err )
+
+        # Ensure index == columns : NxN matrix
+        if not iMatrix.index.equals( iMatrix.columns ) :
+            err = 'CreateNetwork() interactionMatrix is not NxN index==columns'
+            raise RuntimeError( err )
+
     if isinstance( targetCols, str ) :
         targetCols = [ targetCols ] # convert str to []
     if not len( targetCols ) :
         err = 'CreateNetwork() targetCols required'
         raise RuntimeError( err )
-    
-    interactMatrix = ReadMatrix( interactionMatrix = interactionMatrix,
-                                 excludeColumns = excludeColumns,
-                                 verbose = verbose, debug = debug )
+
     if driversFile is None :
         numDriversDF = None
     else :
@@ -71,8 +85,8 @@ def CreateNetwork( interactionMatrix = None, targetCols = [],
 
     # numDrivers_ is a dict mapping { node : numDrivers }
     # Create numDrivers_ with default values from numDrivers
-    numDrivers_ = dict( zip( interactMatrix.columns,
-                        [numDrivers] * len( interactMatrix.columns ) ) )
+    numDrivers_ = dict( zip( iMatrix.columns,
+                             [numDrivers] * len( iMatrix.columns ) ) )
 
     if not numDriversDF is None :
         # Convert numDriversDF to dict based on driversColumns
@@ -114,7 +128,7 @@ def CreateNetwork( interactionMatrix = None, targetCols = [],
             # Rank iMatrix ascending, not descending
             # df.loc[ x ] returns the row x as a Series.
             top_drivers =\
-                interactMatrix.loc[ node_id ].sort_values( ascending = True )
+                iMatrix.loc[ node_id ].sort_values( ascending = True )
             # Threshold iMatrix >= to allow 0 MI as best rank
             top_drivers =\
                 top_drivers[( top_drivers >= threshold ) & \
@@ -122,7 +136,7 @@ def CreateNetwork( interactionMatrix = None, targetCols = [],
         else :
             # df.loc[ x ] returns the row x as a Series.
             top_drivers =\
-                interactMatrix.loc[ node_id ].sort_values()
+                iMatrix.loc[ node_id ].sort_values()
 
             top_drivers =\
                 top_drivers[( top_drivers > threshold ) & \
@@ -243,7 +257,7 @@ def ReadNodeDrivers( driversFile = None, verbose = False, debug = False ):
     return nodeDF
 
 #----------------------------------------------------------------------------
-def ReadMatrix( interactionMatrix, excludeColumns = [],
+def ReadMatrix( interactionMatrixFile, excludeColumns = [],
                 verbose = False, debug = False ):
     '''Read data file of interaction matrix into pandas DataFrame.'''
 
@@ -251,7 +265,7 @@ def ReadMatrix( interactionMatrix, excludeColumns = [],
         print( f"Read Interaction Matrix ... {datetime.now()}", flush = True )
 
     # Read interaction matrix into pandas DataFrame
-    interactMatrix = ReadDataFrame( interactionMatrix, index_col = 0 )
+    interactMatrix = ReadDataFrame( interactionMatrixFile, index_col = 0 )
 
     if len( excludeColumns ) :
         interactMatrix.drop( index   = excludeColumns, inplace = True )
@@ -271,8 +285,9 @@ def CreateNetwork_CmdLine():
 
     args = ParseCmdLine()
     # Call CreateNetwork()
-    n = CreateNetwork( args.interactionMatrix,
-                       args.targetCols,
+    n = CreateNetwork( None,
+                       interactionMatrixFile = args.interactionMatrixFile,
+                       targetCols     = args.targetCols,
                        threshold      = args.threshold,
                        numDrivers     = args.numDrivers,
                        driversFile    = args.driversFile,
@@ -295,11 +310,11 @@ def CreateNetwork_CmdLine():
 def ParseCmdLine():
     parser = argparse.ArgumentParser( description = 'Create Network' )
 
-    parser.add_argument('-i', '--interactionMatrix',
-                        dest    = 'interactionMatrix', type = str, 
+    parser.add_argument('-i', '--interactionMatrixFile',
+                        dest    = 'interactionMatrixFile', type = str, 
                         action  = 'store',
                         default = None,
-                        help    = 'Interaction matrix: .csv or .feather.')
+                        help    = 'Interaction matrix file: .csv or .feather.')
 
     parser.add_argument('-t', '--targetCols', nargs = '+',
                         dest    = 'targetCols', type = str, 
@@ -351,7 +366,7 @@ def ParseCmdLine():
     parser.add_argument('-l', '--layout',
                         dest   = 'layout', type = str, 
                         action = 'store',  default = 'spring',
-        help   = 'Graph plot layout : arf, kk, circ, shell, spring, spectral.')
+          help = 'Graph plot layout : arf, kk, circ, shell, spring, spectral.')
 
     parser.add_argument('-as', '--arrowsize',
                         dest   = 'arrowsize', type = int, 
