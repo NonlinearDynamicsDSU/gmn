@@ -37,35 +37,20 @@ def CreateNetwork( interactionMatrix = None, interactionMatrixFile = None,
     numDrivers to each target node. Then, recursively add nodes that link
     to the established target nodes and drivers.
 
-    numDriversDF is an optional DataFrame with node names in column 1 and
-    node numDrivers in column 2. If numDriversDF is None (default) all
-    node numDrivers are set to numDrivers, else set default numDrivers
-    from numDrivers and replace with any specified in numDriversDF.
+    numDriversDF is an optional DataFrame with node names in driversColumns[0]
+    and node numDrivers in driversColumns[1]. If numDriversDF is None (default)
+    all node numDrivers are set to numDrivers, else set default numDrivers
+    but replaced with any node mappings specified in numDriversDF.
 
-    Write binary networkx.DiGraph() object to args.outputFile,
+    Output: Write binary networkx.DiGraph() object to args.outputFile,
     or a .json file if args.outputFile ends with ".json"
 
     Return { Graph : network_graph, Map : network_dict }.
     '''
-    if interactionMatrix is None :
-        if interactionMatrixFile is None :
-            err = 'CreateNetwork() interactionMatrix or file name required'
-            raise RuntimeError( err )
+    start = datetime.now()
 
-        iMatrix = ReadMatrix( interactionMatrixFile,
-                              excludeColumns = excludeColumns,
-                              verbose = verbose, debug = debug )
-    else :
-        iMatrix = interactionMatrix
-
-        if not isinstance( iMatrix, DataFrame ) :
-            err = 'CreateNetwork() interactionMatrix must be DataFrame'
-            raise RuntimeError( err )
-
-        # Ensure index == columns : NxN matrix
-        if not iMatrix.index.equals( iMatrix.columns ) :
-            err = 'CreateNetwork() interactionMatrix is not NxN index==columns'
-            raise RuntimeError( err )
+    if verbose :
+        print( f"CreateNetwork() {datetime.now()}", flush = True )
 
     if isinstance( targetCols, str ) :
         targetCols = [ targetCols ] # convert str to []
@@ -73,32 +58,20 @@ def CreateNetwork( interactionMatrix = None, interactionMatrixFile = None,
         err = 'CreateNetwork() targetCols required'
         raise RuntimeError( err )
 
-    if driversFile is None :
-        numDriversDF = None
-    else :
-        numDriversDF = ReadNodeDrivers( driversFile, verbose, debug )
+    # Read interactionMatrixFile or validate interactionMatrix DataFrame
+    iMatrix = GetInteractionMatrix(interactionMatrix     = interactionMatrix,
+                                   interactionMatrixFile = interactionMatrixFile,
+                                   excludeColumns        = excludeColumns,
+                                   verbose               = verbose)
 
-    start = datetime.now()
+    D_numDrivers = GetNodeDrivers( driversFile    = driversFile,
+                                   driversColumns = driversColumns,
+                                   numDrivers     = numDrivers,
+                                   columns        = iMatrix.columns,
+                                   verbose = verbose, debug = debug )
 
     if verbose :
-        print( f"CreateNetwork() {datetime.now()}", flush = True )
-
-    # numDrivers_ is a dict mapping { node : numDrivers }
-    # Create numDrivers_ with default values from numDrivers
-    numDrivers_ = dict( zip( iMatrix.columns,
-                             [numDrivers] * len( iMatrix.columns ) ) )
-
-    if not numDriversDF is None :
-        # Convert numDriversDF to dict based on driversColumns
-        numDriversD = dict( zip(numDriversDF.loc[:,driversColumns[0]],
-                                numDriversDF.loc[:,driversColumns[1]]) )
-        # Copy numDrivers from numDriversDF into numDrivers_
-        for node in numDriversD.keys() :
-            numDrivers_[ node ] = numDriversD[ node ]
-
-        if debug :
-            print( f'CreateNetwork() {len(numDriversDF)} numDrivers_' )
-            print( numDrivers_ )
+        print( f'CreateNetwork() Discover... {datetime.now()}', flush = True )
 
     network_graph = DiGraph() # for assessing graph properties
     network_nodes = []        # nodes already added to network
@@ -116,7 +89,7 @@ def CreateNetwork( interactionMatrix = None, interactionMatrixFile = None,
         if node_id in network_nodes:
             continue
 
-        nodeNumDrivers = numDrivers_[ node_id ]
+        nodeNumDrivers = D_numDrivers[ node_id ]
 
         network_nodes.append( node_id )
         network_dict [ node_id ] = [] # empty list of drivers for new node
@@ -166,7 +139,8 @@ def CreateNetwork( interactionMatrix = None, interactionMatrixFile = None,
 
     print( len( network_graph ), 'nodes', flush = True )
     if cmi :
-        print( 'NOTE: --cmi : iMatrix sorted ascending, threshold >=' )
+        print(f'NOTE: --cmi: iMatrix sorted ascending, threshold >= {threshold}',
+              flush = True )
 
     if debug :
         print( "Network Dictionary { Node : ( [Drivers] ), ... }", flush = True )
@@ -206,7 +180,7 @@ def CreateNetwork( interactionMatrix = None, interactionMatrixFile = None,
         elif layout == 'shell'   : layout = shell_layout
         elif layout == 'spring'  : layout = spring_layout
         elif layout == 'spectal' : layout = spectral_layout
-        else                          : layout = spring_layout
+        else                     : layout = spring_layout
 
         plt.figure( figsize = figsize, tight_layout = True )
         draw_networkx( network_graph,
@@ -222,10 +196,67 @@ def CreateNetwork( interactionMatrix = None, interactionMatrixFile = None,
     return Network
 
 #----------------------------------------------------------------------------
+def GetInteractionMatrix( interactionMatrix = None, interactionMatrixFile = None,
+                          excludeColumns = [], verbose = False ) :
+    if verbose :
+        print( f"Read Interaction Matrix {datetime.now()}", flush=True )
+
+    if interactionMatrix is None :
+        # Set DataFrame index to column 0
+        iMatrix = read_csv( interactionMatrixFile, index_col = 0 )
+    else :
+        iMatrix = interactionMatrix
+
+        if not isinstance( iMatrix, DataFrame ) :
+            err = 'GetInteractionMatrix() interactionMatrix must be DataFrame'
+            raise RuntimeError( err )
+
+    # Ensure index == columns : NxN matrix
+    if not iMatrix.index.equals( iMatrix.columns ) :
+        err='GetInteractionMatrix() interactionMatrix is not NxN index==columns'
+        raise RuntimeError( err )
+
+    if len( excludeColumns ) :
+        iMatrix.drop( index   = excludeColumns, inplace = True, errors='ignore' )
+        iMatrix.drop( columns = excludeColumns, inplace = True, errors='ignore' )
+
+    return iMatrix
+
+#----------------------------------------------------------------------------
+def GetNodeDrivers( driversFile = None, driversColumns = ['column','E'],
+                    numDrivers = 1, columns = None,
+                    verbose = False, debug = False ):
+    if verbose :
+        print( f"Get Node Drivers {datetime.now()}", flush=True )
+
+    # numDrivers_ is a dict mapping { node : numDrivers }
+    # Create D_numDrivers initialized with default values of numDrivers
+    D_numDrivers = dict( zip( columns, [numDrivers] * len( columns ) ) )
+
+    if not driversFile is None :
+        numDriversDF = ReadNodeDrivers( driversFile, verbose, debug )
+
+        # Fill in any node:numDrivers mappings
+        # Convert numDriversDF to dict based on driversColumns
+        D_numDriversDF = dict( zip(numDriversDF.loc[:,driversColumns[0]],
+                                   numDriversDF.loc[:,driversColumns[1]]) )
+        # Copy numDrivers from numDriversDF into numDrivers_
+        for node in D_numDriversDF.keys() :
+            D_numDrivers[ node ] = D_numDriversDF[ node ]
+
+        if verbose :
+            print( f'GetNodeDrivers() Assigned {len(numDriversDF)} numDrivers',
+                   flush = True )
+        if debug :
+            print( D_numDrivers, flush = True )
+
+    return D_numDrivers
+
+#----------------------------------------------------------------------------
 def ReadNodeDrivers( driversFile = None, verbose = False, debug = False ):
     '''Read data file of node drivers into dict.
        If file extension is .csv .feather .gz .xz : use pandas -> DataFrame
-       if file extension is .pkl : use pickle.load -> ???
+       if file extension is .pkl : use pickle.load
     '''
 
     if verbose :
@@ -249,35 +280,12 @@ def ReadNodeDrivers( driversFile = None, verbose = False, debug = False ):
         raise RuntimeError( err )
 
     if verbose :
-        print( f"Read {len( nodeDF )} node numDrivers", flush = True )
+        print( f"ReadNodeDrivers {len( nodeDF )} node numDrivers", flush = True )
     if debug :
-        print( "Node numDrivers :", flush = True )
+        print( "ReadNodeDrivers nodeDF :", flush = True )
         print( nodeDF, flush = True )
 
     return nodeDF
-
-#----------------------------------------------------------------------------
-def ReadMatrix( interactionMatrixFile, excludeColumns = [],
-                verbose = False, debug = False ):
-    '''Read data file of interaction matrix into pandas DataFrame.'''
-
-    if verbose :
-        print( f"Read Interaction Matrix ... {datetime.now()}", flush = True )
-
-    # Read interaction matrix into pandas DataFrame
-    interactMatrix = ReadDataFrame( interactionMatrixFile, index_col = 0 )
-
-    if len( excludeColumns ) :
-        interactMatrix.drop( index   = excludeColumns, inplace = True )
-        interactMatrix.drop( columns = excludeColumns, inplace = True )
-
-    if verbose :
-        print( f"Interaction Matrix shape : {interactMatrix.shape}", flush=True )
-    if debug :
-        print( "Interaction Matrix:", flush = True )
-        print( interactMatrix.round( 4 ), flush = True )
-
-    return interactMatrix
 
 #----------------------------------------------------------------------------
 def CreateNetwork_CmdLine():
@@ -411,7 +419,9 @@ def ParseCmdLine():
     args = parser.parse_args()
 
     if args.verbose :
-        print( args, flush = True )
+        print( 'CLI parameters:' )
+        print( args )
+        print( '', flush = True )
 
     return args
 
