@@ -65,7 +65,7 @@ class Parameters:
     #-----------------------------------------------------------
     #-----------------------------------------------------------
     def Print( self ):
-        print( 'Parameters: ----------------------------------' )
+        print( 'Parameters: ----------------------------------', flush = True )
 
         # GMN
         print( '\t', 'mode',             self.mode )
@@ -108,7 +108,7 @@ class Parameters:
         print( '\t', 'sample',          self.sample   )
         print( '\t', 'random',          self.random   )
         print( '\t', 'includeData',     self.includeData )
-        print( '\t', 'seed',            self.seed, flush = True )
+        print( '\t', 'seed',            self.seed )
 
-        print( '\t', 'factor',          self.factor, flush = True )
+        print( '\t', 'factor',          self.factor )
         print( '\t', 'offset',          self.offset, flush = True )

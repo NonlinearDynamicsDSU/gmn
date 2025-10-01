@@ -12,7 +12,7 @@ def Forecast( self ):
 
     if self.args.DEBUG :
         print( '-----> Node:Forecast() : ',self.FunctionType.name, self.name)
-        print( self.data.tail( 2 ) );
+        print( self.data.tail( 2 ), flush = True );
 
     # Local References for convenience and readability
     Parameters = self.Parameters
@@ -20,7 +20,7 @@ def Forecast( self ):
 
     if self.args.DEBUG :
         print( '  data : shape: ', data.shape );
-        print( data.tail( 3 ) ); print()
+        print( data.tail( 3 ) ); print('', flush = True)
 
     #--------------------------------------------------------------------
     if self.FunctionType.value == FunctionType.Simplex.value :
@@ -128,6 +128,6 @@ def Forecast( self ):
     if self.args.DEBUG :
         print( self.name, "val:", val )
         print( '<----- Node:Forecast() : ',self.FunctionType.name,self.name )
-        print()
+        print('', flush = True)
 
     return val

@@ -16,7 +16,7 @@ def Generate( self, lastDataOut ):
     if self.args.DEBUG :
         print( '-----> Node:Generate() : ', self.FunctionType.name, self.name )
         print( self.data.tail( 2 ) );
-        print( 'lastDataOut:' ); print( lastDataOut )
+        print( 'lastDataOut:' ); print( lastDataOut, flush = True )
 
     # Append new data to end of node data : except on time step 0
     # Do not insert via .loc[] : stackoverflow.com/questions/57000903/
@@ -29,7 +29,7 @@ def Generate( self, lastDataOut ):
 
     if self.args.DEBUG :
         print( '  Appended data : shape: ', data.shape );
-        print( data.tail( 3 ) ); print()
+        print( data.tail( 3 ) ); print('', flush = True)
 
     #--------------------------------------------------------------------
     if self.FunctionType.value == FunctionType.Simplex.value :
@@ -220,7 +220,7 @@ def Generate( self, lastDataOut ):
     if self.args.DEBUG :
         print( self.name, "val:", val )
         print( '<----- Node:Generate() : ',self.FunctionType.name,self.name )
-        print()
+        print('', flush = True)
 
     return val
 

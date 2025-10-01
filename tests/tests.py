@@ -5,6 +5,15 @@ import unittest
 
 from pandas import read_csv
 
+'''
+CLI applications in gmn/apps : How to test here?
+
+   ./Run.py -i ../config/default.cfg -v
+
+   ./RunNoConfig.py -v -pS 700 -pL 300 -Ps -PT state -PC Out A B C B -tn Out
+                    -nf "../network/ABCD_Test/ABCD_Network_E3_T0_tau-1_CMI.pkl"
+                    -nd ../data/TestData_ABCD.csv -E 7 -Tp 1 -tau -3
+'''
 #----------------------------------------------------------------
 # Suite of tests
 #----------------------------------------------------------------

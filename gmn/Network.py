@@ -46,13 +46,13 @@ class Network:
             self.NetworkMap  = NetworkGraphDict[ 'Map'   ] # Not used
 
             if args.DEBUG :
-                print( '-> Network.__init__()' )
+                print( '-> Network.__init__()', flush = True )
                 self.Parameters.Print()
 
                 print( 'Graph.nodes : ---------------------' )
-                print( self.Graph.nodes )
+                print( self.Graph.nodes, flush = True )
                 print( 'NetworkMap : ----------------------' )
-                print( self.NetworkMap )
+                print( self.NetworkMap, flush = True )
 
                 if args.Plot :
                     import matplotlib.pyplot as plt
@@ -90,7 +90,7 @@ class Network:
             if args.DEBUG :
                 print( "Network.__init__() Loaded",
                        parameters.networkData, " shape :", str(self.data.shape) )
-                print( self.data.iloc[ self.dataLib_i ].tail(2) )
+                print( self.data.iloc[ self.dataLib_i ].tail(2), flush = True )
 
         self.timeColumnName = self.data.columns[0] # PRESUME column 1 is time
 

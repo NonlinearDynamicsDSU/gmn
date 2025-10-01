@@ -30,7 +30,7 @@ def ReadDataFrame( file, usecols = None, index_col = None, verbose = False ) :
         raise RuntimeError( errMsg )
 
     if verbose :
-        print( f'ReadDataFrame(): {file} : {data.shape}' )
+        print( f'ReadDataFrame(): {file} : {data.shape}', flush = True )
 
     return data
 
@@ -153,7 +153,7 @@ def TimeExtension( times, length = 1, verbose = False ) :
     if verbose:
         msg = f'TimeExtension():\n  isDateTime {isDateTime}  isDate {isDate}' +\
               f'  isTime {isTime}  isInt {isInt}  isFloat {isFloat}'
-        print( f'{msg}\n  lastValue: {lastValue}' )
+        print( f'{msg}\n  lastValue: {lastValue}', flush = True )
 
     # New vector of length
     newTime = [lastValue] * length
@@ -172,7 +172,7 @@ def TimeExtension( times, length = 1, verbose = False ) :
             lastValue    = newTime[ i ]
 
     if verbose:
-        print( f'  newTime: {newTime}' )
+        print( f'  newTime: {newTime}', flush = True )
 
     return newTime
 

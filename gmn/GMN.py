@@ -85,7 +85,7 @@ class GMN:
 
         if self.args.verbose or self.args.DEBUG :
             start = datetime.now()
-            print( f'-> GMN:Generate() {start}' )
+            print( f'-> GMN:Generate() {start}', flush = True )
 
         # Local References for convenience and readability
         Network = self.Network
@@ -95,7 +95,7 @@ class GMN:
         for t_i in range( self.Parameters.predictionLength ):
             if self.args.DEBUG :
                 print( "===================== GMN Time:", t_i,
-                       "=====================================" )
+                       "=====================================", flush = True )
 
             # Allocate DataFrame for node outputs.
             NodeOutput = DataFrame( columns = self.Network.dataColumns,
@@ -108,7 +108,7 @@ class GMN:
                 if self.args.DEBUG :
                     print( "GMN:Generate Network Loop:", nodeName )
                     print( 'columns:', node.Parameters.columns, ':',
-                           'target',   node.Parameters.target )
+                           'target',   node.Parameters.target, flush = True )
 
                 # Call node Generate method and store value in NodeOutput
                 NodeOutput.at[ 0, nodeName ] = node.Generate( self.lastDataOut )
@@ -134,7 +134,7 @@ class GMN:
 
         if self.args.verbose or self.args.DEBUG :
             end = datetime.now()
-            print( f'<- GMN:Generate() {end}  :  {end-start}' )
+            print( f'<- GMN:Generate() {end}  :  {end-start}', flush = True )
 
         self.Output()
 
@@ -146,7 +146,7 @@ class GMN:
 
         if self.args.verbose or self.args.DEBUG :
             start = datetime.now()
-            print( f'-> GMN:Forecast() {start}' )
+            print( f'-> GMN:Forecast() {start}', flush = True )
 
         # Local References for convenience and readability
         Network = self.Network
@@ -159,7 +159,7 @@ class GMN:
             if self.args.DEBUG :
                 print( "GMN:Forecast Network Loop:", nodeName )
                 print( 'columns:', node.Parameters.columns, ':',
-                       'target',   node.Parameters.target )
+                       'target',   node.Parameters.target, flush = True )
 
             # Call node Forecast method and store in DataOut
             self.DataOut[ nodeName ] = node.Forecast()[1]
@@ -173,7 +173,7 @@ class GMN:
 
         if self.args.verbose or self.args.DEBUG :
             end = datetime.now()
-            print( f'<- GMN:Forecast() {end}  :  {end-start}' )
+            print( f'<- GMN:Forecast() {end}  :  {end-start}', flush = True )
 
         self.Output()
 
@@ -205,7 +205,7 @@ class GMN:
 
         if self.args.DEBUG :
             print( "GMN.Output() DataOut:" )
-            print( self.DataOut )
+            print( self.DataOut, flush = True )
 
         # Plot
         if self.args.Plot or self.args.StatePlot or \

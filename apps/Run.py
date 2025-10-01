@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 # Python distribution modules
-from time import time
+from datetime import datetime
 
 # Community modules
 
@@ -16,7 +16,7 @@ def main():
     '''GMN application command line interface
        Runs a single GMN instance. See RunDir.py for parallel.'''
 
-    startTime  = time()
+    startTime  = datetime.now()
     args       = ParseCmdLine()
     parameters = ReadConfig( args )
 
@@ -28,7 +28,7 @@ def main():
     else :
         GMN.Forecast() # lib & pred forecast : no generation
 
-    print( 'Elapsed time', str( round( time() - startTime, 4 ) ) )
+    print( f'Elapsed time {datetime.now() - startTime}' )
 
 #----------------------------------------------------------------------------
 # Provide for cmd line invocation and clean module loading

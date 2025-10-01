@@ -12,7 +12,7 @@ try:
     from sklearn.svm          import SVR
     from sklearn.linear_model import LinearRegression
 except ImportError as err:
-    print( err, "Node: SVR, knn, Linear not available" )
+    print( err, "Node: SVR, knn, Linear not available", flush = True )
 
 try:
     from os import environ
@@ -20,7 +20,7 @@ try:
     from kedm import simplex as kedm_simplex
     from kedm import smap    as kedm_smap
 except ImportError as err:
-    print( err, "Node: kedm not loaded" )
+    print( err, "Node: kedm not loaded", flush = True )
 
 # Local modules 
 from gmn.ConfigParser import ReadConfig
@@ -67,7 +67,7 @@ class Node:
         self.libEnd_i     = None  # EDM library end: Constant @ predictionStart
 
         if args.DEBUG :
-            print( '-> Node.__init__() : ', nodeName )
+            print( '-> Node.__init__() : ', nodeName, flush = True )
 
         # Set nodeParameters = True if node config file found
         nodeParameters = False
@@ -85,7 +85,7 @@ class Node:
                 nodeParameters = True
 
                 if args.DEBUG :
-                    print( str( nodeFile ) + " Found in ", query )
+                    print( str( nodeFile ) + " Found in ", query, flush = True )
 
         if nodeParameters :
             # Found node.cfg : Get config Parameters & data if specified
@@ -104,7 +104,7 @@ class Node:
                 if args.DEBUG :
                     print( "Node.__init__() Loaded", self.Parameters.nodeData,
                            " shape :", str( self.data.shape ) )
-                    print( self.data.tail(2) )
+                    print( self.data.tail(2), flush = True )
             else:
                 # No Node data specified. Make copy of network data
                 self.data = Network.data.iloc[ self.Network.dataLib_i ].copy()
@@ -183,4 +183,4 @@ class Node:
             print( 'columns:', self.Parameters.columns )
             print( 'target:',  self.Parameters.target  )
             print( str( self.FunctionType ), str( self.Function ) ) 
-            print( '<- Node.__init__() : ', nodeName )
+            print( '<- Node.__init__() : ', nodeName, flush = True )
