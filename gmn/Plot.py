@@ -93,11 +93,11 @@ def Plot( self ):
             else :
                 axs = ax[i]
 
-            dataCol    = data   [ col ]
-            gmnDataCol = gmnData[ col ]
+            dataCol    = data   [ col ].to_numpy()
+            gmnDataCol = gmnData[ col ].to_numpy()
 
             if pred_i[-1] < data.shape[0] :
-                err = ComputeError( dataCol.values[ pred_i ], gmnDataCol.values )
+                err = ComputeError( dataCol[ pred_i ], gmnDataCol )
                 rho = round( err[ 'rho' ], 2 )
             else :
                 rho = '' # Generated data exceeds observations
@@ -118,8 +118,8 @@ def Plot( self ):
     #----------------------------------------------------------------------
     elif args.StatePlot or 'state' in parameters.plotType.lower() :
         col0        = plotColumns[0]
-        dataCol0    = data   [ col0 ]
-        gmnDataCol0 = gmnData[ col0 ]
+        dataCol0    = data   [ col0 ].to_numpy()
+        gmnDataCol0 = gmnData[ col0 ].to_numpy()
 
         # plotColumns rows x 3 columns
         fig, ax = plt.subplots( len( plotColumns ), 3 )
@@ -130,11 +130,11 @@ def Plot( self ):
 
         i_ax = 0
         for col in plotColumns:
-            dataCol1    = data   [ col ]
-            gmnDataCol1 = gmnData[ col ]
+            dataCol1    = data   [ col ].to_numpy()
+            gmnDataCol1 = gmnData[ col ].to_numpy()
 
             if pred_i[-1] < data.shape[0] :
-                err = ComputeError(dataCol1.values[pred_i], gmnDataCol1.values)
+                err = ComputeError( dataCol1[pred_i], gmnDataCol1 )
                 rho = round( err[ 'rho' ], 2 )
             else :
                 rho = '' # Generated data exceeds observations
@@ -154,7 +154,7 @@ def Plot( self ):
             axs[1].plot( dataCol1[ dataPred_i ], dataCol0[ dataPred_i ],
                          'o', markersize = 2,
                          label = "Lib: " + col0 + " ~ " + col )
-            axs[1].plot( dataCol1.values[-1], dataCol0.values[-1],
+            axs[1].plot( dataCol1[-1], dataCol0[-1],
                          '*', markersize = 8, color = 'red' )
             axs[1].legend( loc = 'upper center',
                            handlelength = 0, markerscale = 0, #frameon = False,
@@ -165,7 +165,7 @@ def Plot( self ):
                          label = "GMN: " + col0 + " ~ " + col +\
                                  " [" + str( rho ) + "]",
                          color = 'darkorange')
-            axs[2].plot( gmnDataCol1.values[-1], gmnDataCol0.values[-1],
+            axs[2].plot( gmnDataCol1[-1], gmnDataCol0[-1],
                          '*', markersize = 8, color = 'red' )
             axs[2].legend( loc = 'upper center',
                            handlelength = 0, markerscale = 0, #frameon = False,

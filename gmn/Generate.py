@@ -131,9 +131,9 @@ def Generate( self, lastDataOut ):
         library = data_.iloc[ : self.libEnd_i ] # first to libEnd_i rows
         target  = library[ Parameters.target ]  # same rows as library
 
-        S = self.Function( lib    = library.values, # ndarray to kedm
-                           pred   = pred.values,    # ndarray to kedm
-                           target = target.values,  # ndarray to kedm
+        S = self.Function( lib    = library.to_numpy(), # ndarray for kedm
+                           pred   = pred.to_numpy(),    # ndarray for kedm
+                           target = target.to_numpy(),  # ndarray for kedm
                            E      = Parameters.E,
                            tau    = abs( Parameters.tau ),
                            Tp     = Parameters.Tp )
@@ -153,9 +153,9 @@ def Generate( self, lastDataOut ):
         library = data_.iloc[ : self.libEnd_i ] # first to libEnd_i rows
         target  = library                       # same rows as library
 
-        S = self.Function( lib    = library.values, # ndarray to kedm
-                           pred   = pred.values,    # ndarray to kedm
-                           target = target.values,  # ndarray to kedm
+        S = self.Function( lib    = library.to_numpy(), # ndarray for kedm
+                           pred   = pred.to_numpy(),    # ndarray for kedm
+                           target = target.to_numpy(),  # ndarray for kedm
                            E      = Parameters.E,
                            tau    = abs( Parameters.tau ),
                            Tp     = Parameters.Tp,
@@ -169,8 +169,8 @@ def Generate( self, lastDataOut ):
         X = data[ Parameters.columns ]
         #if len( Parameters.columns ) > 1 :
         #    X  = X.drop( self.name, axis = 'columns' )
-        X = X.values
-        y = data[ Parameters.target ].values.copy()
+        X = X.to_numpy()
+        y = data[ Parameters.target ].to_numpy()
 
         lr = self.Function()
         lr.fit( X, y )
@@ -185,8 +185,8 @@ def Generate( self, lastDataOut ):
         X = data[ Parameters.columns ]
         #if len( Parameters.columns ) > 1 :
         #    X  = X.drop( self.name, axis = 'columns' )
-        X = X.values
-        y = data[ Parameters.target ].values.copy()
+        X = X.to_numpy()
+        y = data[ Parameters.target ].to_numpy()
 
         svr = self.Function( kernel = 'rbf', gamma = 'scale', tol = 0.001,
                              epsilon = 0.1, shrinking = True, cache_size = 200,
@@ -206,8 +206,8 @@ def Generate( self, lastDataOut ):
             # Remove self from X
             X  = X.drop( self.name, axis = 'columns' )
 
-        X = X.values
-        y = data[ Parameters.target ].values.copy()
+        X = X.to_numpy()
+        y = data[ Parameters.target ].to_numpy()
 
         # JP: n_neighbors should be a Parameter
         knn = self.Function( n_neighbors = 10, weights = 'distance' )

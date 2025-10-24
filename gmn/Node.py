@@ -87,36 +87,10 @@ class Node:
                 if args.DEBUG :
                     print( str( nodeFile ) + " Found in ", query, flush = True )
 
-        if nodeParameters :
-            # Found node.cfg : Get config Parameters & data if specified
+        if nodeParameters : # Found node.cfg : Get config Parameters
             self.Parameters = ReadConfig( args, nodeFile )
-
-            if self.Parameters.nodeData :
-                # Load node data as Pandas DataFrame
-                # JP: All data needed?
-                data = ReadDataFrame( self.Parameters.nodeData,
-                                      verbose = args.verbose )
-
-                # Subset to "data library"
-                # Network: dataLib_i = range( predictionStart )
-                self.data = data.iloc[ self.Network.dataLib_i ]
-
-                if args.DEBUG :
-                    print( "Node.__init__() Loaded", self.Parameters.nodeData,
-                           " shape :", str( self.data.shape ) )
-                    print( self.data.tail(2), flush = True )
-            else:
-                # No Node data specified. Make copy of network data
-                self.data = Network.data.iloc[ self.Network.dataLib_i ].copy()
-
-        else :  # default to Network config & data
+        else : # default to Network config
             self.Parameters = copy( self.Network.Parameters )
-
-            # Copy node data: subset to dataLib_i : DataFrame.copy(deep=True) 
-            # Network: dataLib_i = range( parameters.predictionStart )
-            #   iloc[] returns a view (slice) of the object
-            #   www.practicaldatascience.org/html/views_and_copies_in_pandas.html
-            self.data = Network.data.iloc[ self.Network.dataLib_i ].copy()
 
         # Assign columns and target : target is the node name
         if len(self.Parameters.target) == 0 or self.Parameters.target.isspace():
@@ -125,10 +99,38 @@ class Node:
         # columns are inputs to the node + target
         # target required if node has no input, predict the var itself
         if len(self.Parameters.columns)==0 or self.Parameters.columns.isspace():
-            # predecessors(n) returns an iterator over predecessor nodes of n.
+            # G.predecessors(n) returns an iterator over predecessor nodes of n.
             self.Parameters.columns = \
                 [ n for n in self.Network.Graph.predecessors( self.name ) ]
             self.Parameters.columns.append( self.name )
+
+        # Assign node data
+        timeVec      = self.Network.data.columns[0] # PRESUME first col time
+        nodeDataCols = [timeVec] + self.Parameters.columns
+
+        if nodeParameters :
+            # Found node.cfg : Get data if specified
+            if self.Parameters.nodeData :
+                data = ReadDataFrame( self.Parameters.nodeData,
+                                      verbose = args.verbose )
+
+                if not set( nodeDataCols ).issubset( data.columns ) :
+                    msg = "Node(): " + nodeName +\
+                        " Node data does not contain " + nodeDataCols
+                    raise RuntimeError( msg )
+
+                # Subset to data library, time + target + columns
+                # Network: dataLib_i = range( predictionStart )
+                self.data = data.loc[ self.Network.dataLib_i,
+                                       nodeDataCols ].copy()
+            else :
+                self.data = Network.data.loc[ self.Network.dataLib_i,
+                                              nodeDataCols ].copy()
+        else :
+            # No Node data specified. Make copy of network data
+            # subset to dataLib_i = range( parameters.predictionStart )
+            self.data = Network.data.loc[ self.Network.dataLib_i,
+                                          nodeDataCols ].copy()
 
         # Assign node FunctionType and Function
         nodeFunction = self.Parameters.function.lower()
