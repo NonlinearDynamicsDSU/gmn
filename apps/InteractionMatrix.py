@@ -6,6 +6,7 @@ from   datetime           import datetime
 from   math               import nan
 from   itertools          import combinations_with_replacement, repeat
 from   concurrent.futures import ProcessPoolExecutor
+from   multiprocessing    import get_context
 
 # Community modules
 import matplotlib.pyplot as plt
@@ -127,16 +128,22 @@ def main():
     # computes both CCM(i,j) and CCM(j,i); Start at 1 to skip first column
     crossColumns = \
         list( combinations_with_replacement( range( 1, args.numCols ), 2 ) )
+    N_ = len( crossColumns )
 
-    N_        = len( crossColumns )
-    chunksize = maximum( 1, int( N_ / (2 * args.cores) ) )
+    if args.chunksize is None :
+        chunksize = maximum( 1, int( N_ / (2 * args.cores) ) )
+    else :
+        chunksize = args.chunksize
+
+    mpContext = get_context( args.mpMethod )
 
     if args.verbose:
-        print( f'{datetime.now()} Starting ProcessPoolExecutor: ' +\
-               f'chunksize {chunksize}' )
+        print( f'{datetime.now()} ProcessPoolExecutor: {args.mpMethod} ' +\
+               f'chunksize {chunksize} cores {args.cores}' )
 
     # ProcessPoolExecutor has no starmap(). Pass argument lists directly.
-    with ProcessPoolExecutor( max_workers = args.cores ) as exe :
+    with ProcessPoolExecutor( max_workers = args.cores,
+                              mp_context = mpContext ) as exe :
         interact_ = exe.map( InteractFunc,
                              crossColumns,
                              repeat( data, N_ ),
@@ -633,6 +640,17 @@ def ParseCmdLine():
                         dest   = 'cores', type = int, 
                         action = 'store', default = 8,
                         help = 'Multiprocessing cores.')
+
+    parser.add_argument('-mp', '--mpMethod',
+                        dest    = 'mpMethod', type = str,
+                        action  = 'store',
+                        default = None,
+                        help    = 'Multiprocessing start method')
+
+    parser.add_argument('-cz', '--chunksize',
+                        dest   = 'chunksize', type = int,
+                        action = 'store', default = None,
+                        help = 'ProcessPool chunksize')
 
     parser.add_argument('-oc', '--outCSVFile',
                         dest   = 'outCSVFile', type = str,
