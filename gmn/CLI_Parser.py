@@ -3,9 +3,9 @@ from argparse import ArgumentParser
 
 #--------------------------------------------------------------
 #--------------------------------------------------------------
-def ParseCmdLine():
+def ParseCmdLine( argv = None ):
 
-    parser = ArgumentParser( description = 'Run GMN' )
+    parser = ArgumentParser( description = 'GMN' )
 
     parser.add_argument('-i', '--configFile',
                         dest    = 'configFile', type = str, 
@@ -79,6 +79,6 @@ def ParseCmdLine():
                         dest   = 'DEBUG', # type = bool, 
                         action = 'store_true', default = False )
 
-    args = parser.parse_args()
+    args = parser.parse_args( argv ) # if argv is None : default = sys.argv[1:]
 
     return args

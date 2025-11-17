@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 # Python distribution
-from os import environ
+from os  import environ
 from argparse import ArgumentParser
 
 # Community
@@ -68,7 +68,7 @@ def main():
         G.Forecast() # lib & pred forecast : no generation
 
 #----------------------------------------------------------------------------
-def ParseCmdLine():
+def ParseCmdLine( argv = None ):
     '''CLI argument parser for most config arguments and parameters'''
 
     parser = ArgumentParser( description = 'GMN Run No Config' )
@@ -259,7 +259,7 @@ def ParseCmdLine():
                         action  = 'store',  default = 0.,
                         help    = 'offset')
 
-    args = parser.parse_args()
+    args = parser.parse_args( argv ) # if argv is None : default = sys.argv[1:]
 
     return args
 

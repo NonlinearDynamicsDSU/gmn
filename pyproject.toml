@@ -1,20 +1,16 @@
-[build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
-
 [project]
-name    = "gmn"
-version = "1.4.3"
-date    = "2025-10-23"
+name          = "gmn"
+description   = "Generative Manifold Networks"
+dynamic       = ["version","versionDate"]
+readme        = "README.md"
+license-files = ["LICENSE"]
 authors = [
   { name = "Joseph Park", email = "JosephPark@IEEE.org" },
   { name = "Gerald Pao",  email = "Gerald.Pao@OIST.jp"  },
 ]
-description = "Generative Manifold Networks"
-readme      = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-  "pyEDM>=2.1.0",
+  "pyEDM>=2.3.0",
   "networkx>=3.0",
   "pandas>=2.0",
   "pyarrow",
@@ -24,14 +20,17 @@ dependencies = [
 ]
 classifiers = [
   "Programming Language :: Python :: 3",
-  "License :: Free For Educational Use",
   "Operating System :: OS Independent",
 ]
-
 [project.urls]
 "Homepage"      = "https://github.com/NonlinearDynamicsDSU/gmn"
 "Documentation" = "https://nonlineardynamicsdsu.github.io/gmn/"
 "Issues"        = "https://github.com/NonlinearDynamicsDSU/gmn/issues"
-
-#[tool.setuptools]
-#py-modules = ['gmn']
+[tool.pdm.version]
+source = "file"
+path   = "gmn/__init__.py"
+[tool.pdm.build]
+includes = ["gmn/", "apps/", "config/", "data/", "network/", "tests/"]
+[build-system]
+requires      = ["pdm-backend"]
+build-backend = "pdm.backend"

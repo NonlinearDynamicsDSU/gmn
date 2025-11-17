@@ -2,7 +2,7 @@
 import configparser
 
 # Local modules 
-from gmn.Parameters import Parameters
+from .Parameters import Parameters
 
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------

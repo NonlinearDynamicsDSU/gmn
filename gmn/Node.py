@@ -23,9 +23,9 @@ except ImportError as err:
     print( err, "Node: kedm not loaded", flush = True )
 
 # Local modules 
-from gmn.ConfigParser import ReadConfig
-from gmn.Common       import *
-from gmn.Auxiliary    import ReadDataFrame
+from .ConfigParser import ReadConfig
+from .Common       import *
+from .Auxiliary    import ReadDataFrame
 
 #-----------------------------------------------------------
 #-----------------------------------------------------------
@@ -51,8 +51,8 @@ class Node:
     '''
 
     # import Generate, Forecast as a Node class method
-    from gmn.Generate import Generate
-    from gmn.Forecast import Forecast
+    from .Generate import Generate
+    from .Forecast import Forecast
 
     #----------------------------------------------------------------------
     def __init__( self, args, Network, nodeName ):

@@ -6,8 +6,8 @@ import pickle
 from networkx import topological_sort
 
 # Local modules 
-from gmn.Node      import Node
-from gmn.Auxiliary import ReadDataFrame
+from .Node      import Node
+from .Auxiliary import ReadDataFrame
 
 #---------------------------------------------------------------
 #---------------------------------------------------------------

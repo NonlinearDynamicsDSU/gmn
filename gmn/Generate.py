@@ -5,7 +5,7 @@ from numpy  import arange
 from pyEDM  import Embed
 
 # Local modules
-from gmn.Common import *
+from .Common import *
 
 #----------------------------------------------------------------------
 #----------------------------------------------------------------------

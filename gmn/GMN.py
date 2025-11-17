@@ -6,10 +6,10 @@ from datetime import datetime
 from pandas import DataFrame, concat
 
 # Local modules 
-from gmn.Network      import Network
-from gmn.Auxiliary    import TimeExtension
-from gmn.CLI_Parser   import ParseCmdLine
-from gmn.ConfigParser import ReadConfig
+from .Network      import Network
+from .Auxiliary    import TimeExtension
+from .CLI_Parser   import ParseCmdLine
+from .ConfigParser import ReadConfig
 
 #-----------------------------------------------------------------------
 class GMN:
@@ -18,10 +18,11 @@ class GMN:
     '''
 
     # import Plot as a GMN class method
-    from gmn.Plot import Plot
+    from .Plot import Plot
 
     #-------------------------------------------------------------------
-    def __init__( self, args  = None,  parameters = None,
+    def __init__( self,
+                  args        = None,  parameters = None,
                   configFile  = None,  configDir  = None,
                   outputFile  = None,  cores      = 4,
                   plot        = False, plotType   = 'state',
@@ -31,16 +32,15 @@ class GMN:
         '''Constructor
 
         Full configuration is performed by instantiating GMN with
-        args from gmn.CLI_Parser.ParseCmdLine and parameters from
-        from gmn.ConfigParser.ReadConfig.
+        args from .CLI_Parser.ParseCmdLine and parameters from
+        from .ConfigParser.ReadConfig.
 
-        If parameter args is None GMN.__init__ function arguments
-        are used to partially populate args. If parameters is None
-        Parameters object is created from the args.
+        If args is None GMN.__init__ arguments partially populate args.
+        If parameters is None Parameters object is created from the args.
         '''
 
         if args is None:
-            args = ParseCmdLine() # set default args
+            args = ParseCmdLine( argv = [] ) # set default args
             # Insert constructor arguments into args
             args.configFile  = configFile
             args.configDir   = configDir

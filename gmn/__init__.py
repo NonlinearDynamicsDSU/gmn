@@ -2,16 +2,14 @@
 
 # import gmn modules
 
-from gmn.GMN          import *
-from gmn.Auxiliary    import TimeExtension
-from gmn.CLI_Parser   import *
-from gmn.ConfigParser import *
-from gmn.Network      import *
-from gmn.Node         import *
-from gmn.Parameters   import *
-from gmn.Plot         import *
+from .GMN          import *
+from .Auxiliary    import TimeExtension
+from .CLI_Parser   import *
+from .ConfigParser import *
+from .Network      import *
+from .Node         import *
+from .Parameters   import *
+from .Plot         import *
 
-# Craziness to set __version__ from .toml : gmn must already be installed!
-# Perhaps just use a .toml parser and read the file?
-import importlib.metadata
-__version__ = importlib.metadata.version("gmn")
+__version__     = "1.5.0"
+__versionDate__ = "2025-11-15"
